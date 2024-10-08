@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Tabs, Card, Avatar, Typography, Form, Input, Button, Table, Tag, Modal, message, Select, Checkbox, Row, Col, Layout } from 'antd';
+import { Tabs, Card, Avatar, Typography, Form, Input, Button, Table, Tag, Modal, message, Select, Checkbox, Row, Col, Layout,Upload } from 'antd';
 import { UserOutlined, CarOutlined, SettingOutlined, PlusOutlined, BellOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
-
+import { Image } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+const { Dragger } = Upload;
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
 
 export default function DriverProfile() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [vehicles, setVehicles] = useState([]);
+  const [userDetails, setUserDetails] = useState({});
   const [form] = Form.useForm();
   const location = useLocation();
   const { email } = location.state || {};
@@ -24,7 +27,8 @@ export default function DriverProfile() {
       })
       .then(response => response.json())
       .then(data => {
-        console.log('Success:', data);
+      setUserDetails(data);
+      console.log(data)
         
       })
       .catch((error) => {
@@ -41,8 +45,62 @@ export default function DriverProfile() {
     });
   };
 
+  const onFinishVehicle = (values) => {
+    console.log('Success:', values); // Verify the values object
+    const formData = new FormData();
+  
+    // Append form fields to FormData
+    Object.keys(values).forEach((key) => {
+      console.log(`Appending ${key}:`, values[key]); // Log each key-value pair
+      formData.append(key, values[key]);
+    });
+  
+    // Append file lists
+    fileList1.forEach((file) => {
+      console.log('File 1:', file.originFileObj);
+      formData.append('document1', file.originFileObj);
+    });
+    
+    fileList2.forEach((file) => {
+      console.log('File 2:', file.originFileObj);
+      formData.append('document2', file.originFileObj);
+    });
+  
+    fileList3.forEach((file) => {
+      console.log('File 3:', file.originFileObj);
+      formData.append('document3', file.originFileObj);
+    });
+  
+    fileList4.forEach((file) => {
+      console.log('File 4:', file.originFileObj);
+      formData.append('document4', file.originFileObj);
+    });
+  
+    // Log FormData contents for debugging
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value); // This will show you the keys and their values
+    }
+  
+    // Send the FormData to your server
+    fetch('http://localhost:3000/addvehicles', {
+      method: 'POST',
+      body: formData, // Do not set Content-Type; let the browser handle it
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      message.success('Profile updated successfully!');
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+      message.error('Failed to update profile.');
+    });
+  };
+  
+  
   const onFinish = (values) => {
     console.log('Success:', values);
+      // Append files
+    
     message.success('Profile updated successfully!');
   };
 
@@ -84,7 +142,15 @@ export default function DriverProfile() {
       ),
     },
   ];
+  const [fileList1, setFileList1] = useState([]);
+  const [fileList2, setFileList2] = useState([]);
+  const [fileList3, setFileList3] = useState([]);
+  const [fileList4, setFileList4] = useState([]);
 
+
+  const handleUpload = (info, setFileList) => {
+    setFileList([...info.fileList]);
+  };
   return (
     <Layout className="min-h-screen">
       {/* Top Header */}
@@ -115,13 +181,12 @@ export default function DriverProfile() {
             }
           >
             <div className="flex flex-col sm:flex-row items-center gap-6">
-              <Avatar 
-                size={{ xs: 80, sm: 100, md: 120 }} 
-                icon={<UserOutlined />} 
-                className="border-4 border-white shadow-lg -mt-16 bg-blue-500"
-              />
+            <Image
+    width={200}
+    src="https://media.licdn.com/dms/image/v2/D5603AQHP2aCOjIlMEg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1728291384007?e=1733961600&v=beta&t=ZzyPsloDqYcP_YbYBneOTAIG8XCKjDIf6qwCmEn5QwI"
+  />
               <div className="text-center sm:text-left -mt-8 sm:mt-0">
-                <Title level={2} className="!mb-0">John Doe</Title>
+                <Title level={2} className="!mb-0">{userDetails?.name}</Title>
                 <Text className="text-gray-500">{email || 'Professional Driver'}</Text>
               </div>
             </div>
@@ -291,69 +356,121 @@ export default function DriverProfile() {
 
       {/* Vehicle Modal */}
       <Modal
-        title="Add New Vehicle"
-        open={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        width={700}
-      >
-        <Form form={form} layout="vertical">
-          <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12}>
-              <Form.Item 
-                name="make" 
-                label="Make" 
-                rules={[{ required: true, message: 'Please input vehicle make!' }]}
-              >
-                <Input size="large" placeholder="Enter vehicle make" />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item 
-                name="model" 
-                label="Model" 
-                rules={[{ required: true, message: 'Please input vehicle model!' }]}
-              >
-                <Input size="large" placeholder="Enter vehicle model" />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item 
-                name="year" 
-                label="Year" 
-                rules={[{ required: true, message: 'Please input vehicle year!' }]}
-              >
-                <Input size="large" type="number" placeholder="Enter vehicle year" />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item 
-                name="licensePlate" 
-                label="License Plate" 
-                rules={[{ required: true, message: 'Please input license plate!' }]}
-              >
-                <Input size="large" placeholder="Enter license plate" />
-              </Form.Item>
-            </Col>
-            <Col xs={24}>
-              <Form.Item 
-                name="type" 
-                label="Type" 
-                rules={[{ required: true, message: 'Please select vehicle type!' }]}
-              >
-                <Select
-                  size="large"
-                  placeholder="Select vehicle type"
-                  options={[
-                    { value: 'Standard', label: 'Standard' },
-                    { value: 'Premium', label: 'Premium' },
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
-      </Modal>
+  title="Add New Vehicle"
+  open={isModalVisible}
+  onOk={handleOk}
+  onCancel={handleCancel}
+  width={700}
+>
+  <Form form={form} layout="vertical" onFinish={onFinishVehicle}>
+    <Row gutter={[16, 16]}>
+      <Col xs={24} sm={12}>
+        <Form.Item 
+          name="make" 
+          label="Make" 
+          rules={[{ required: true, message: 'Please input vehicle make!' }]}
+        >
+          <Input size="large" placeholder="Enter vehicle make" />
+        </Form.Item>
+      </Col>
+      <Col xs={24} sm={12}>
+        <Form.Item 
+          name="model" 
+          label="Model" 
+          rules={[{ required: true, message: 'Please input vehicle model!' }]}
+        >
+          <Input size="large" placeholder="Enter vehicle model" />
+        </Form.Item>
+      </Col>
+      <Col xs={24} sm={12}>
+        <Form.Item 
+          name="year" 
+          label="Year" 
+          rules={[{ required: true, message: 'Please input vehicle year!' }]}
+        >
+          <Input size="large" type="number" placeholder="Enter vehicle year" />
+        </Form.Item>
+      </Col>
+      <Col xs={24} sm={12}>
+        <Form.Item 
+          name="licensePlate" 
+          label="License Plate" 
+          rules={[{ required: true, message: 'Please input license plate!' }]}
+        >
+          <Input size="large" placeholder="Enter license plate" />
+        </Form.Item>
+      </Col>
+      <Col xs={24}>
+        <Form.Item 
+          name="type" 
+          label="Type" 
+          rules={[{ required: true, message: 'Please select vehicle type!' }]}
+        >
+          <Select
+            size="large"
+            placeholder="Select vehicle type"
+            options={[
+              { value: 'Premium', label: 'Premium' },
+              { value: 'Luxury', label: 'Luxury' },
+            ]}
+          />
+        </Form.Item>
+      </Col>
+      {/* Upload Fields */}
+      <Col xs={24} sm={12}>
+        <Form.Item label="Driving Licence" required>
+          <Dragger 
+            fileList={fileList1} 
+            beforeUpload={() => false} 
+            onChange={(info) => handleUpload(info, setFileList1)}
+          >
+            <Button icon={<UploadOutlined />}>Driving Licence</Button>
+          </Dragger>
+        </Form.Item>
+      </Col>
+      <Col xs={24} sm={12}>
+        <Form.Item label="Vehicle Insurance Proof" required>
+          <Dragger 
+            fileList={fileList2} 
+            beforeUpload={() => false} 
+            onChange={(info) => handleUpload(info, setFileList2)}
+          >
+            <Button icon={<UploadOutlined />}>Vehicle Insurance Proof</Button>
+          </Dragger>
+        </Form.Item>
+      </Col>
+      <Col xs={24} sm={12}>
+        <Form.Item label="Proof Of Address" required>
+          <Dragger 
+            fileList={fileList3} 
+            beforeUpload={() => false} 
+            onChange={(info) => handleUpload(info, setFileList3)}
+          >
+            <Button icon={<UploadOutlined />}>Proof Of Address</Button>
+          </Dragger>
+        </Form.Item>
+      </Col>
+      <Col xs={24} sm={12}>
+        <Form.Item label="Police Clearance Certificate" required>
+          <Dragger 
+            fileList={fileList4} 
+            beforeUpload={() => false} 
+            onChange={(info) => handleUpload(info, setFileList4)}
+          >
+            <Button icon={<UploadOutlined />}>Police Clearance Certificate</Button>
+          </Dragger>
+        </Form.Item>
+      </Col>
+    </Row>
+    <Col xs={24}>
+      <Form.Item>
+        <Button type="primary" size="large" htmlType="submit">
+          Add Vehicle
+        </Button>
+      </Form.Item>
+    </Col>
+  </Form>
+</Modal>
 
       {/* Custom styles */}
       <style jsx global>{`
