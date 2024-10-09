@@ -15,6 +15,10 @@ export default function DriverProfile() {
   const [form] = Form.useForm();
   const location = useLocation();
   const { email } = location.state || {};
+  const [fileList1, setFileList1] = useState([]);
+  const [fileList2, setFileList2] = useState([]);
+  const [fileList3, setFileList3] = useState([]);
+  const [fileList4, setFileList4] = useState([]);
 
   const showModal = () => setIsModalVisible(true);
   useEffect(()=>{
@@ -38,65 +42,39 @@ export default function DriverProfile() {
   },[])
   const handleOk = () => {
     form.validateFields().then((values) => {
-      setVehicles([...vehicles, { ...values, key: Date.now() }]);
-      setIsModalVisible(false);
-      form.resetFields();
-      message.success('Vehicle added successfully!');
+      const formData = new FormData();
+  
+      // Append form fields
+      Object.keys(values).forEach((key) => {
+        formData.append(key, values[key]);
+      });
+  
+      // Append files
+      if (fileList1[0]) formData.append('Driving_Licence', fileList1[0].originFileObj);
+      if (fileList2[0]) formData.append('Vehicle_Insurance_Proof', fileList2[0].originFileObj);
+      if (fileList3[0]) formData.append('Proof_Of_Address', fileList3[0].originFileObj);
+      if (fileList4[0]) formData.append('Police_Clearance_Certificate', fileList4[0].originFileObj);
+  
+      // Send the FormData to your backend
+      fetch('http://localhost:3000/addvehicles', {
+        method: 'POST',
+        body: formData,
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        message.success('Vehicle added successfully!');
+        setIsModalVisible(false);
+        form.resetFields();
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        message.error('Failed to add vehicle.');
+      });
     });
   };
+  
 
-  const onFinishVehicle = (values) => {
-    console.log('Success:', values); // Verify the values object
-    const formData = new FormData();
-  
-    // Append form fields to FormData
-    Object.keys(values).forEach((key) => {
-      console.log(`Appending ${key}:`, values[key]); // Log each key-value pair
-      formData.append(key, values[key]);
-    });
-  
-    // Append file lists
-    fileList1.forEach((file) => {
-      console.log('File 1:', file.originFileObj);
-      formData.append('document1', file.originFileObj);
-    });
-    
-    fileList2.forEach((file) => {
-      console.log('File 2:', file.originFileObj);
-      formData.append('document2', file.originFileObj);
-    });
-  
-    fileList3.forEach((file) => {
-      console.log('File 3:', file.originFileObj);
-      formData.append('document3', file.originFileObj);
-    });
-  
-    fileList4.forEach((file) => {
-      console.log('File 4:', file.originFileObj);
-      formData.append('document4', file.originFileObj);
-    });
-  
-    // Log FormData contents for debugging
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value); // This will show you the keys and their values
-    }
-  
-    // Send the FormData to your server
-    fetch('http://localhost:3000/addvehicles', {
-      method: 'POST',
-      body: formData, // Do not set Content-Type; let the browser handle it
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      message.success('Profile updated successfully!');
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-      message.error('Failed to update profile.');
-    });
-  };
-  
-  
+ 
   const onFinish = (values) => {
     console.log('Success:', values);
       // Append files
@@ -142,14 +120,12 @@ export default function DriverProfile() {
       ),
     },
   ];
-  const [fileList1, setFileList1] = useState([]);
-  const [fileList2, setFileList2] = useState([]);
-  const [fileList3, setFileList3] = useState([]);
-  const [fileList4, setFileList4] = useState([]);
+
 
 
   const handleUpload = (info, setFileList) => {
-    setFileList([...info.fileList]);
+    const { fileList } = info;
+    setFileList(fileList.slice(-1)); // Only keep the last file
   };
   return (
     <Layout className="min-h-screen">
@@ -362,7 +338,7 @@ export default function DriverProfile() {
   onCancel={handleCancel}
   width={700}
 >
-  <Form form={form} layout="vertical" onFinish={onFinishVehicle}>
+  <Form form={form} layout="vertical"  >
     <Row gutter={[16, 16]}>
       <Col xs={24} sm={12}>
         <Form.Item 
@@ -461,14 +437,9 @@ export default function DriverProfile() {
           </Dragger>
         </Form.Item>
       </Col>
+     
     </Row>
-    <Col xs={24}>
-      <Form.Item>
-        <Button type="primary" size="large" htmlType="submit">
-          Add Vehicle
-        </Button>
-      </Form.Item>
-    </Col>
+    
   </Form>
 </Modal>
 
