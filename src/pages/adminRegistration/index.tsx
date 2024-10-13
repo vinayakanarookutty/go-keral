@@ -6,14 +6,14 @@ import { Car } from 'lucide-react';
 
 const { Title, Text } = Typography;
 
-export function DriverRegistrationPage() {
+export function AdminRegistrationPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
   const onFinish = (values) => {
     console.log('Success:', values);
     message.success('Registration successful!');
-    fetch('http://localhost:3000/driversignup', {
+    fetch('http://localhost:3000/adminsignup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -23,8 +23,8 @@ export function DriverRegistrationPage() {
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
-      if(data == "Driver Created Succesfully"){
-        navigate('/driverProfile',{ state: { email: values.email } })
+      if(data == "Admin Created Succesfully"){
+        navigate('/adminProfile')
       }
     })
     .catch((error) => {
@@ -52,7 +52,7 @@ export function DriverRegistrationPage() {
         <div className="relative z-10">
           <img className="mx-auto h-24 w-auto" src="../../../public/gokeral.png" alt="Company Logo" />
           <Title level={2} className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Driver Registration
+            Admin Registration
           </Title>
           <Text className="mt-2 text-center text-sm text-gray-600 block">
             Join our elite team of professional drivers
@@ -91,12 +91,7 @@ export function DriverRegistrationPage() {
             <Input prefix={<PhoneOutlined className="site-form-item-icon text-blue-500" />} placeholder="Phone Number" className="rounded-md" />
           </Form.Item>
 
-          <Form.Item
-            name="drivinglicenseNo"
-            rules={[{ required: true, message: 'Please input your driving license number!' }]}
-          >
-            <Input prefix={<Car className="site-form-item-icon text-blue-500" />} placeholder="Driving License No" className="rounded-md" />
-          </Form.Item>
+         
 
           <Form.Item
             name="password"
@@ -154,4 +149,4 @@ export function DriverRegistrationPage() {
   );
 }
 
-export default DriverRegistrationPage;
+export default AdminRegistrationPage;

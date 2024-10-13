@@ -6,6 +6,10 @@ import Maps from '../pages/maps'
 import { DriverRegistrationPage } from '../pages/driverRegistration'
 import DriverProfile from '../pages/profile'
 import DriverLogin from '../pages/driverLogin'
+import { AdminLogin } from '../pages/adminLogin'
+import AdminRegistrationPage from '../pages/adminRegistration'
+import AdminProfile from '../pages/adminProfile'
+import DestinationMap from '../pages/addLocations'
 
 // import { routePaths } from '../config'
 // import Maps from '../maps'
@@ -54,14 +58,22 @@ export const router = createBrowserRouter([
         element: <DriverLogin/>
     },
 
-    // {
-    //     path:routePaths.location,
-    //     element: <Location/>
-    // },
-    // {
-    //     path:routePaths.profile,
-    //     element: <DriverProfile/>
-    // },
+    {
+        path:routePaths.adminLogin,
+        element: <AdminLogin/>
+    },
+    {
+        path:routePaths.adminRegistration,
+        element: <AdminRegistrationPage/>
+    },
+    {
+        path:routePaths.adminprofile,
+        element: <AdminProfile/>
+    },
+    {
+        path:routePaths.addLocations,
+        element: <DestinationMap/>
+    },
     {
         path: '*',
         element: <NotFound />,

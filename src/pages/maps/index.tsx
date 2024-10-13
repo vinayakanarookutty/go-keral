@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Map, { Source, Layer, Marker ,Popup} from 'react-map-gl';
-import { AutoComplete, List, Card, Radio, Space, Typography, Button, Modal, Form, Input, message } from 'antd';
-import { EnvironmentTwoTone } from '@ant-design/icons';
+import Map, { Source, Layer, Marker, Popup } from 'react-map-gl';
+import { AutoComplete, List, Radio, Typography, Button, Modal, Form, Input, message } from 'antd';
+import { EnvironmentFilled, EnvironmentTwoTone } from '@ant-design/icons';
 import axios from 'axios';
 import { useUserStore } from '../../store/user';
-import { EnvironmentFilled } from '@ant-design/icons';
-import {  Rate } from 'antd';
+
+
 const { Option } = AutoComplete;
 const { Text } = Typography;
 
@@ -27,6 +27,7 @@ interface Route {
   distance: number;
   duration: number;
 }
+
 interface Pin {
   id: string;
   title: string;
@@ -35,6 +36,7 @@ interface Pin {
   latitude: number;
   longitude: number;
 }
+
 const Maps: React.FC = () => {
   const [viewState, setViewState] = useState<ViewState>({
     latitude: 10.8505,
@@ -171,124 +173,160 @@ const Maps: React.FC = () => {
     }
   };
 
+
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: '20px', display: 'flex', gap: "1rem" }}>
-        <AutoComplete
-          style={{ width: 200 }}
-          onSearch={handleOriginChange}
-          onSelect={handleOriginSelect}
-          placeholder="Origin"
-        >
-          {originOptions.map(option => (
-            <Option key={option.value} value={option.value} coordinates={option.coordinates}>
-              {option.value}
-            </Option>
-          ))}
-        </AutoComplete>
-        <AutoComplete
-          style={{ width: 200 }}
-          onSearch={handleDestinationChange}
-          onSelect={handleDestinationSelect}
-          placeholder="Destination"
-        >
-          {destinationOptions.map(option => (
-            <Option key={option.value} value={option.value} coordinates={option.coordinates}>
-              {option.value}
-            </Option>
-          ))}
-        </AutoComplete>
+    <div className="flex flex-col h-screen bg-gray-100">
+      <div className="p-4 bg-white shadow-md">
+        <div className="flex space-x-4">
+          <AutoComplete
+            className="w-full"
+            onSearch={handleOriginChange}
+            onSelect={handleOriginSelect}
+            placeholder="Origin"
+          >
+            {originOptions.map(option => (
+              <Option key={option.value} value={option.value} coordinates={option.coordinates}>
+                {option.value}
+              </Option>
+            ))}
+          </AutoComplete>
+          <AutoComplete
+            className="w-full"
+            onSearch={handleDestinationChange}
+            onSelect={handleDestinationSelect}
+            placeholder="Destination"
+          >
+            {destinationOptions.map(option => (
+              <Option key={option.value} value={option.value} coordinates={option.coordinates}>
+                {option.value}
+              </Option>
+            ))}
+          </AutoComplete>
+        </div>
       </div>
-      <div style={{ display: 'flex', height: 'calc(100vh - 100px)' }}>
-        <Map
-          {...viewState}
-          onMove={(evt) => setViewState(evt.viewState)}
-          mapboxAccessToken={mapboxToken}
-          style={{ flex: 2 }}
-          mapStyle="mapbox://styles/vinayak1937/cm0rtfeki00mr01pbgjerd69p"
-        >
-           {pins.map((pin) => (
-          <React.Fragment key={pin.id}>
-            <Marker longitude={pin.longitude} latitude={pin.latitude}>
-              <EnvironmentFilled
-                style={{ fontSize: '24px', color: 'red', cursor: 'pointer' }}
-                onClick={() => setCurrentPlaceId(pin.id)}
-              />
-            </Marker>
-            {currentPlaceId === pin.id && (
-              <Popup
-                longitude={pin.longitude}
-                latitude={pin.latitude}
-                closeOnClick={false}
-                onClose={() => setCurrentPlaceId(null)}
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-2/3 relative">
+          <Map
+            {...viewState}
+            onMove={(evt) => setViewState(evt.viewState)}
+            mapboxAccessToken={mapboxToken}
+            mapStyle="mapbox://styles/vinayak1937/cm0rtfeki00mr01pbgjerd69p"
+            className="w-full h-full"
+          >
+            {pins.map((pin) => (
+              <React.Fragment key={pin.id}>
+                <Marker longitude={pin.longitude} latitude={pin.latitude}>
+                  <EnvironmentFilled
+                    className="text-2xl text-red-500 cursor-pointer hover:text-red-600 transition-colors"
+                    onClick={() => setCurrentPlaceId(pin.id)}
+                  />
+                </Marker>
+                {currentPlaceId === pin.id && (
+                  <Popup
+                    longitude={pin.longitude}
+                    latitude={pin.latitude}
+                    closeOnClick={false}
+                    onClose={() => setCurrentPlaceId(null)}
+                    className="w-64"
+                  >
+                    <div className="p-2">
+                      <h3 className="text-lg font-semibold mb-2">{pin.title}</h3>
+                      <p className="text-sm mb-2">{pin.description}</p>
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <span
+                            key={i}
+                            className={`text-xl ${
+                              i < pin.rating ? 'text-yellow-400' : 'text-gray-300'
+                            }`}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </Popup>
+                )}
+              </React.Fragment>
+            ))}
+            {routes.map((route, index) => (
+              <Source
+                key={index}
+                type="geojson"
+                data={{
+                  type: 'Feature',
+                  properties: {},
+                  geometry: route.geometry
+                }}
               >
-                <Card title={pin.title} style={{ width: 200 }}>
-                  <p>{pin.description}</p>
-                  <Rate disabled defaultValue={pin.rating} />
-                </Card>
-              </Popup>
+                <Layer
+                  id={`route-${index}`}
+                  type="line"
+                  layout={{
+                    "line-join": "round",
+                    "line-cap": "round"
+                  }}
+                  paint={{
+                    "line-color": ROUTE_COLORS[index % ROUTE_COLORS.length],
+                    "line-width": selectedRouteIndex === index ? 5 : 3,
+                    "line-opacity": selectedRouteIndex === index ? 1 : 0.5
+                  }}
+                />
+              </Source>
+            ))}
+            {originCoords && (
+              <Marker longitude={originCoords[0]} latitude={originCoords[1]} color="red">
+                <EnvironmentTwoTone className="text-3xl text-blue-500" />
+              </Marker>
             )}
-          </React.Fragment>
-        ))}
-          {routes.map((route, index) => (
-            <Source
-              key={index}
-              type="geojson"
-              data={{
-                type: 'Feature',
-                properties: {},
-                geometry: route.geometry
-              }}
+            {destCoords && (
+              <Marker longitude={destCoords[0]} latitude={destCoords[1]} color="blue">
+                <EnvironmentTwoTone className="text-3xl text-green-500" />
+              </Marker>
+            )}
+          </Map>
+        </div>
+        <div className="w-1/3 bg-white shadow-lg overflow-auto">
+          <div className="p-4">
+            <Text className="text-xl font-semibold mb-4 block">Route Information</Text>
+            <div className="mb-4">
+              <Text className="font-medium">Total Distance: </Text>
+              <Text className="text-blue-600">
+                {selectedRouteIndex !== null
+                  ? `${(routes[selectedRouteIndex].distance / 1000).toFixed(2)} km`
+                  : 'N/A'}
+              </Text>
+            </div>
+            <Text className="text-lg font-medium mb-2 block">Available Routes:</Text>
+            <Radio.Group
+              onChange={(e) => handleRouteSelect(e.target.value)}
+              value={selectedRouteIndex}
+              className="space-y-4"
             >
-              <Layer
-                id={`route-${index}`}
-                type="line"
-                layout={{
-                  "line-join": "round",
-                  "line-cap": "round"
-                }}
-                paint={{
-                  "line-color": ROUTE_COLORS[index % ROUTE_COLORS.length],
-                  "line-width": selectedRouteIndex === index ? 5 : 3,
-                  "line-opacity": selectedRouteIndex === index ? 1 : 0.5
-                }}
-              />
-            </Source>
-          ))}
-          
-          {originCoords && (
-            <Marker longitude={originCoords[0]} latitude={originCoords[1]} color="red">
-              <EnvironmentTwoTone style={{ fontSize: '26px', color: '#08c' }} />
-            </Marker>
-          )}
-          
-          {destCoords && (
-            <Marker longitude={destCoords[0]} latitude={destCoords[1]} color="blue">
-              <EnvironmentTwoTone style={{ fontSize: '26px', color: '#08c' }} />
-            </Marker>
-          )}
-        </Map>
-        <Card style={{ flex: 1, overflow: 'auto' }}>
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Text strong>Total Distance: </Text>
-            <Text>{selectedRouteIndex !== null ? `${(routes[selectedRouteIndex].distance / 1000).toFixed(2)} km` : 'N/A'}</Text>
-            <Text strong>Available Routes:</Text>
-            <Radio.Group onChange={(e) => handleRouteSelect(e.target.value)} value={selectedRouteIndex}>
               {routes.map((route, index) => (
-                <Radio key={index} value={index} style={{ display: 'block', marginBottom: '10px' }}>
-                  <Space direction="vertical">
-                    <Text style={{ color: ROUTE_COLORS[index % ROUTE_COLORS.length] }}>Route {index + 1}</Text>
-                    <Text>Distance: {(route.distance / 1000).toFixed(2)} km</Text>
-                    <Text>Duration: {(route.duration / 60).toFixed(2)} minutes</Text>
-                  </Space>
+                <Radio key={index} value={index} className="block">
+                  <div className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <Text className="font-medium" style={{ color: ROUTE_COLORS[index % ROUTE_COLORS.length] }}>
+                      Route {index + 1}
+                    </Text>
+                    <div className="mt-1 space-y-1">
+                      <Text className="block text-sm">Distance: {(route.distance / 1000).toFixed(2)} km</Text>
+                      <Text className="block text-sm">Duration: {(route.duration / 60).toFixed(2)} minutes</Text>
+                    </div>
+                  </div>
                 </Radio>
               ))}
             </Radio.Group>
-            <Button type="primary" onClick={handleBookRoute} disabled={selectedRouteIndex === null}>
+            <Button
+              type="primary"
+              onClick={handleBookRoute}
+              disabled={selectedRouteIndex === null}
+              className="mt-6 w-full bg-blue-500 hover:bg-blue-600"
+            >
               Book Selected Route
             </Button>
-          </Space>
-        </Card>
+          </div>
+        </div>
       </div>
 
       <Modal
@@ -296,19 +334,20 @@ const Maps: React.FC = () => {
         visible={isBookingModalVisible}
         onCancel={() => setIsBookingModalVisible(false)}
         footer={null}
+        className="max-w-md"
       >
         <Form form={form} onFinish={handleBookingSubmit} layout="vertical">
           <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-            <Input />
+            <Input className="w-full" />
           </Form.Item>
           <Form.Item name="phone" label="Phone Number" rules={[{ required: true }]}>
-            <Input />
+            <Input className="w-full" />
           </Form.Item>
           <Form.Item name="date" label="Travel Date" rules={[{ required: true }]}>
-            <Input type="date" />
+            <Input type="date" className="w-full" />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" className="w-full bg-green-500 hover:bg-green-600">
               Confirm Booking
             </Button>
           </Form.Item>

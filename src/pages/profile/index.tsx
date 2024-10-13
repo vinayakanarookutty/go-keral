@@ -4,9 +4,14 @@ import { UserOutlined, CarOutlined, SettingOutlined, PlusOutlined, BellOutlined 
 import { useLocation } from 'react-router-dom';
 import { Image } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import axios from 'axios';
 const { Dragger } = Upload;
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
+import { Worker, Viewer } from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import PdfComp from '../../components/pdf';
+
 
 export default function DriverProfile() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -19,11 +24,11 @@ export default function DriverProfile() {
   const [fileList2, setFileList2] = useState([]);
   const [fileList3, setFileList3] = useState([]);
   const [fileList4, setFileList4] = useState([]);
-  const [getvehicles, setGetVehicles] = useState([]);
+  const [pdfFile, setPdfFile] = useState(null);
 
   const showModal = () => setIsModalVisible(true);
   useEffect(() => {
-    fetch(`http://localhost:3000/userDetails?id=${email}`, {
+    fetch(`http://localhost:3000/driverDetails?id=${email}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -43,25 +48,25 @@ export default function DriverProfile() {
   }, [])
 
 
-  //vehicle fetching
-  useEffect(() => {
-    fetch(`http://localhost:3000/getvehicles`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then(response => response.json())
-      .then(data => {
-        setGetVehicles(data);
-        console.log(data)
+  // //vehicle fetching
+  // useEffect(() => {
+  //   fetch(`http://localhost:3000/getvehicles`, {
+  //     method: 'GET',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //   })
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       setGetVehicles(data);
+  //       console.log(data)
 
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-        message.error('Registration failed. Please try again.');
-      });
-  }, [])
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error:', error);
+  //       message.error('Registration failed. Please try again.');
+  //     });
+  // }, [])
 
   const handleOk = () => {
     form.validateFields().then((values) => {
@@ -110,40 +115,88 @@ export default function DriverProfile() {
     form.resetFields();
   };
 
+  
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchVehicles();
+  }, []);
+  
+  const fetchVehicles = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/getvehicles');
+      console.log('Fetched Vehicles:', response.data); // Check the structure
+      const data = Array.isArray(response.data) ? response.data : [];
+      setVehicles(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching vehicles:', error);
+      message.error('Failed to fetch vehicles');
+      setLoading(false);
+    }
+  };
+  const handleFileClick = async (filePath) => {
+    console.log("haiiii")
+    setPdfFile(`http://localhost:3000/${filePath}`);
+    const response = await fetch(`http://localhost:3000/${filePath}`);
+  
+    if (response.ok) {
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      
+      // Open the PDF in a new window or tab
+      window.open(url, '_blank');
+    }
+  };
+
   const columns = [
+    { title: 'Make', dataIndex: 'make', key: 'make' },
+    { title: 'Model', dataIndex: 'model', key: 'model' },
+    { title: 'Year', dataIndex: 'year', key: 'year' },
+    { title: 'License Plate', dataIndex: 'licensePlate', key: 'licensePlate' },
+    { title: 'Type', dataIndex: 'type', key: 'type' },
     {
-      title: 'Make',
-      dataIndex: 'make',
-      key: 'make',
-      responsive: ['md'],
+      title: 'Driving Licence',
+      dataIndex: 'Driving_Licence',
+      key: 'Driving_Licence',
+      render: (text, record) => (
+        <Button onClick={() => handleFileClick(record.Driving_Licence)}>
+          View Driving Licence
+        </Button>
+      ),
     },
     {
-      title: 'Model',
-      dataIndex: 'model',
-      key: 'model',
+      title: 'Vehicle Insurance Proof',
+      dataIndex: 'Vehicle_Insurance_Proof',
+      key: 'Vehicle_Insurance_Proof',
+      render: (text, record) => (
+        <Button onClick={() => handleFileClick(record.Vehicle_Insurance_Proof)}>
+          View Insurance
+        </Button>
+      ),
     },
     {
-      title: 'Year',
-      dataIndex: 'year',
-      key: 'year',
-      responsive: ['lg'],
+      title: 'Proof Of Address',
+      dataIndex: 'Proof_Of_Address',
+      key: 'Proof_Of_Address',
+      render: (text, record) => (
+        <Button onClick={() => handleFileClick(record.Proof_Of_Address)}>
+          View Address Proof
+        </Button>
+      ),
     },
     {
-      title: 'License Plate',
-      dataIndex: 'licensePlate',
-      key: 'licensePlate',
-      responsive: ['sm'],
-    },
-    {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
-      render: (text) => (
-        <Tag color={text === 'Premium' ? 'gold' : 'green'}>{text}</Tag>
+      title: 'Police Clearance Certificate',
+      dataIndex: 'Police_Clearance_Certificate',
+      key: 'Police_Clearance_Certificate',
+      render: (text, record) => (
+        <Button onClick={() => handleFileClick(record.Police_Clearance_Certificate)}>
+          View Police Certificate
+        </Button>
       ),
     },
   ];
-
+  
 
 
   const handleUpload = (info, setFileList) => {
@@ -271,18 +324,32 @@ export default function DriverProfile() {
                         </Button>
                       </div>
                       <Table
-                        columns={columns}
-                        dataSource={vehicles}
-                        scroll={{ x: true }}
-                        className="custom-table"
-                        pagination={{
-                          responsive: true,
-                          defaultPageSize: 5,
-                          showSizeChanger: true,
-                          showTotal: (total, range) =>
-                            `${range[0]}-${range[1]} of ${total} items`
-                        }}
-                      />
+  columns={columns}
+  dataSource={vehicles || []} // Default to empty array
+  scroll={{ x: true }}
+  className="custom-table"
+  pagination={{
+    responsive: true,
+    defaultPageSize: 5,
+    showSizeChanger: true,
+    showTotal: (total, range) =>
+      `${range[0]}-${range[1]} of ${total} items`,
+  }}
+  loading={loading}
+  rowKey="_id"
+/>
+{pdfFile && (
+        <div style={{ marginTop: 20 }}>
+          <h3>PDF Preview</h3>
+          <div style={{ height: '750px' }}>
+          {/* <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.15.349/build/pdf.worker.min.js">
+  <Viewer fileUrl={pdfFile} />
+</Worker> */}
+  <PdfComp pdfFile={pdfFile}/>
+  
+          </div>
+        </div>
+      )}
                     </div>
                   ),
                 },
