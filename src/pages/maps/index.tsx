@@ -4,7 +4,7 @@ import { AutoComplete, List, Radio, Typography, Button, Modal, Form, Input, mess
 import { EnvironmentFilled, EnvironmentTwoTone } from '@ant-design/icons';
 import axios from 'axios';
 import { useUserStore } from '../../store/user';
-
+import { useNavigate } from 'react-router-dom';
 
 const { Option } = AutoComplete;
 const { Text } = Typography;
@@ -43,7 +43,7 @@ const Maps: React.FC = () => {
     longitude: 76.2711,
     zoom: 6
   });
-
+  const navigate = useNavigate();
   const [origin, setOrigin] = useState<string>('');
   const [destination, setDestination] = useState<string>('');
   const [originOptions, setOriginOptions] = useState<PlaceOption[]>([]);
@@ -153,23 +153,22 @@ const Maps: React.FC = () => {
 
   const handleBookRoute = () => {
     if (selectedRouteIndex !== null) {
-      setIsBookingModalVisible(true);
+      const selectedRoute = routes[selectedRouteIndex];
+      const bookingDetails = {
+        origin,
+        destination,
+        distance: (selectedRoute.distance / 1000).toFixed(2),
+        duration: (selectedRoute.duration / 60).toFixed(2),
+        routeIndex: selectedRouteIndex,
+        // Add any other relevant details you want to pass
+        originCoords,
+        destCoords,
+      };
+      console.log(bookingDetails)
+
+      navigate('/bookingconfirmation', { state: bookingDetails });
     } else {
       message.warning('Please select a route before booking.');
-    }
-  };
-
-  const handleBookingSubmit = async (values: any) => {
-    try {
-      // Here you would typically send a request to your backend to process the booking
-      // For this example, we'll just simulate a successful booking
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      message.success('Booking successful!');
-      setIsBookingModalVisible(false);
-      form.resetFields();
-    } catch (error) {
-      message.error('Booking failed. Please try again.');
     }
   };
 
@@ -276,12 +275,12 @@ const Maps: React.FC = () => {
             ))}
             {originCoords && (
               <Marker longitude={originCoords[0]} latitude={originCoords[1]} color="red">
-                <EnvironmentTwoTone className="text-3xl text-blue-500" />
+                <EnvironmentFilled className="text-3xl text-blue-500" />
               </Marker>
             )}
             {destCoords && (
               <Marker longitude={destCoords[0]} latitude={destCoords[1]} color="blue">
-                <EnvironmentTwoTone className="text-3xl text-green-500" />
+                <EnvironmentFilled className="text-3xl text-green-500" />
               </Marker>
             )}
           </Map>
@@ -329,30 +328,6 @@ const Maps: React.FC = () => {
         </div>
       </div>
 
-      <Modal
-        title="Book Route"
-        visible={isBookingModalVisible}
-        onCancel={() => setIsBookingModalVisible(false)}
-        footer={null}
-        className="max-w-md"
-      >
-        <Form form={form} onFinish={handleBookingSubmit} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-            <Input className="w-full" />
-          </Form.Item>
-          <Form.Item name="phone" label="Phone Number" rules={[{ required: true }]}>
-            <Input className="w-full" />
-          </Form.Item>
-          <Form.Item name="date" label="Travel Date" rules={[{ required: true }]}>
-            <Input type="date" className="w-full" />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" className="w-full bg-green-500 hover:bg-green-600">
-              Confirm Booking
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 };

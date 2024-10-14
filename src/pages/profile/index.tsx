@@ -227,9 +227,12 @@ export default function DriverProfile() {
           <Card
             className="mb-8 overflow-hidden"
             cover={
-              <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-500 relative">
-                <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/20 to-transparent" />
-              </div>
+              // <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-500 relative">
+              //   <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/20 to-transparent" />
+              // </div>
+              <>
+              
+              </>
             }
           >
             <div className="flex flex-col sm:flex-row items-center gap-6">

@@ -10,6 +10,7 @@ import { AdminLogin } from '../pages/adminLogin'
 import AdminRegistrationPage from '../pages/adminRegistration'
 import AdminProfile from '../pages/adminProfile'
 import DestinationMap from '../pages/addLocations'
+import BookingConfirmation from '../pages/bookingConfirmation'
 
 // import { routePaths } from '../config'
 // import Maps from '../maps'
@@ -73,6 +74,10 @@ export const router = createBrowserRouter([
     {
         path:routePaths.addLocations,
         element: <DestinationMap/>
+    },
+    {
+        path:routePaths.bookingconfirmation,
+        element: <BookingConfirmation/>
     },
     {
         path: '*',
