@@ -174,161 +174,160 @@ const Maps: React.FC = () => {
 
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      <div className="p-4 bg-white shadow-md">
-        <div className="flex space-x-4">
-          <AutoComplete
-            className="w-full"
-            onSearch={handleOriginChange}
-            onSelect={handleOriginSelect}
-            placeholder="Origin"
-          >
-            {originOptions.map(option => (
-              <Option key={option.value} value={option.value} coordinates={option.coordinates}>
-                {option.value}
-              </Option>
-            ))}
-          </AutoComplete>
-          <AutoComplete
-            className="w-full"
-            onSearch={handleDestinationChange}
-            onSelect={handleDestinationSelect}
-            placeholder="Destination"
-          >
-            {destinationOptions.map(option => (
-              <Option key={option.value} value={option.value} coordinates={option.coordinates}>
-                {option.value}
-              </Option>
-            ))}
-          </AutoComplete>
-        </div>
+    <div className="flex flex-col h-screen w-screen bg-gradient-to-br from-blue-50 to-green-50 overflow-hidden">
+    <div className="p-4 bg-white shadow-md z-10">
+      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+        <AutoComplete
+          className="w-full"
+          onSearch={handleOriginChange}
+          onSelect={handleOriginSelect}
+          placeholder="Origin"
+          style={{ backgroundColor: '#f0f9ff' }}
+        >
+          {originOptions.map(option => (
+            <Option key={option.value} value={option.value} coordinates={option.coordinates}>
+              {option.value}
+            </Option>
+          ))}
+        </AutoComplete>
+        <AutoComplete
+          className="w-full"
+          onSearch={handleDestinationChange}
+          onSelect={handleDestinationSelect}
+          placeholder="Destination"
+          style={{ backgroundColor: '#f0fdf4' }}
+        >
+          {destinationOptions.map(option => (
+            <Option key={option.value} value={option.value} coordinates={option.coordinates}>
+              {option.value}
+            </Option>
+          ))}
+        </AutoComplete>
       </div>
-      <div className="flex flex-1 overflow-hidden">
-        <div className="w-2/3 relative">
-          <Map
-            {...viewState}
-            onMove={(evt) => setViewState(evt.viewState)}
-            mapboxAccessToken={mapboxToken}
-            mapStyle="mapbox://styles/vinayak1937/cm0rtfeki00mr01pbgjerd69p"
-            className="w-full h-full"
-          >
-            {pins.map((pin) => (
-              <React.Fragment key={pin.id}>
-                <Marker longitude={pin.longitude} latitude={pin.latitude}>
-                  <EnvironmentFilled
-                    className="text-2xl text-red-500 cursor-pointer hover:text-red-600 transition-colors"
-                    onClick={() => setCurrentPlaceId(pin.id)}
-                  />
-                </Marker>
-                {currentPlaceId === pin.id && (
-                  <Popup
-                    longitude={pin.longitude}
-                    latitude={pin.latitude}
-                    closeOnClick={false}
-                    onClose={() => setCurrentPlaceId(null)}
-                    className="w-64"
-                  >
-                    <div className="p-2">
-                      <h3 className="text-lg font-semibold mb-2">{pin.title}</h3>
-                      <p className="text-sm mb-2">{pin.description}</p>
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <span
-                            key={i}
-                            className={`text-xl ${
-                              i < pin.rating ? 'text-yellow-400' : 'text-gray-300'
-                            }`}
-                          >
-                            ★
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </Popup>
-                )}
-              </React.Fragment>
-            ))}
-            {routes.map((route, index) => (
-              <Source
-                key={index}
-                type="geojson"
-                data={{
-                  type: 'Feature',
-                  properties: {},
-                  geometry: route.geometry
-                }}
-              >
-                <Layer
-                  id={`route-${index}`}
-                  type="line"
-                  layout={{
-                    "line-join": "round",
-                    "line-cap": "round"
-                  }}
-                  paint={{
-                    "line-color": ROUTE_COLORS[index % ROUTE_COLORS.length],
-                    "line-width": selectedRouteIndex === index ? 5 : 3,
-                    "line-opacity": selectedRouteIndex === index ? 1 : 0.5
-                  }}
+    </div>
+    <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
+      <div className="w-full lg:w-2/3 h-1/2 lg:h-full relative">
+        <Map
+          {...viewState}
+          onMove={(evt) => setViewState(evt.viewState)}
+          mapboxAccessToken={mapboxToken}
+          mapStyle="mapbox://styles/vinayak1937/cm0rtfeki00mr01pbgjerd69p"
+          className="w-full h-full"
+        >
+          {pins.map((pin) => (
+            <React.Fragment key={pin.id}>
+              <Marker longitude={pin.longitude} latitude={pin.latitude}>
+                <EnvironmentFilled
+                  className="text-2xl text-red-500 cursor-pointer hover:text-red-600 transition-colors"
+                  onClick={() => setCurrentPlaceId(pin.id)}
                 />
-              </Source>
-            ))}
-            {originCoords && (
-              <Marker longitude={originCoords[0]} latitude={originCoords[1]} color="red">
-                <EnvironmentFilled className="text-3xl text-blue-500" />
               </Marker>
-            )}
-            {destCoords && (
-              <Marker longitude={destCoords[0]} latitude={destCoords[1]} color="blue">
-                <EnvironmentFilled className="text-3xl text-green-500" />
-              </Marker>
-            )}
-          </Map>
-        </div>
-        <div className="w-1/3 bg-white shadow-lg overflow-auto">
-          <div className="p-4">
-            <Text className="text-xl font-semibold mb-4 block">Route Information</Text>
-            <div className="mb-4">
-              <Text className="font-medium">Total Distance: </Text>
-              <Text className="text-blue-600">
-                {selectedRouteIndex !== null
-                  ? `${(routes[selectedRouteIndex].distance / 1000).toFixed(2)} km`
-                  : 'N/A'}
-              </Text>
-            </div>
-            <Text className="text-lg font-medium mb-2 block">Available Routes:</Text>
-            <Radio.Group
-              onChange={(e) => handleRouteSelect(e.target.value)}
-              value={selectedRouteIndex}
-              className="space-y-4"
-            >
-              {routes.map((route, index) => (
-                <Radio key={index} value={index} className="block">
-                  <div className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <Text className="font-medium" style={{ color: ROUTE_COLORS[index % ROUTE_COLORS.length] }}>
-                      Route {index + 1}
-                    </Text>
-                    <div className="mt-1 space-y-1">
-                      <Text className="block text-sm">Distance: {(route.distance / 1000).toFixed(2)} km</Text>
-                      <Text className="block text-sm">Duration: {(route.duration / 60).toFixed(2)} minutes</Text>
+              {currentPlaceId === pin.id && (
+                <Popup
+                  longitude={pin.longitude}
+                  latitude={pin.latitude}
+                  closeOnClick={false}
+                  onClose={() => setCurrentPlaceId(null)}
+                  className="w-64"
+                >
+                  <div className="p-2">
+                    <h3 className="text-lg font-semibold mb-2">{pin.title}</h3>
+                    <p className="text-sm mb-2">{pin.description}</p>
+                    <div className="flex items-center">
+                      {[...Array(5)].map((_, i) => (
+                        <span
+                          key={i}
+                          className={`text-xl ${
+                            i < pin.rating ? 'text-yellow-400' : 'text-gray-300'
+                          }`}
+                        >
+                          ★
+                        </span>
+                      ))}
                     </div>
                   </div>
-                </Radio>
-              ))}
-            </Radio.Group>
-            <Button
-              type="primary"
-              onClick={handleBookRoute}
-              disabled={selectedRouteIndex === null}
-              className="mt-6 w-full bg-blue-500 hover:bg-blue-600"
+                </Popup>
+              )}
+            </React.Fragment>
+          ))}
+          {routes.map((route, index) => (
+            <Source
+              key={index}
+              type="geojson"
+              data={{
+                type: 'Feature',
+                properties: {},
+                geometry: route.geometry
+              }}
             >
-              Book Selected Route
-            </Button>
-          </div>
-        </div>
+              <Layer
+                id={`route-${index}`}
+                type="line"
+                layout={{
+                  "line-join": "round",
+                  "line-cap": "round"
+                }}
+                paint={{
+                  "line-color": ROUTE_COLORS[index % ROUTE_COLORS.length],
+                  "line-width": selectedRouteIndex === index ? 5 : 3,
+                  "line-opacity": selectedRouteIndex === index ? 1 : 0.5
+                }}
+              />
+            </Source>
+          ))}
+          {originCoords && (
+            <Marker longitude={originCoords[0]} latitude={originCoords[1]} color="red">
+              <EnvironmentFilled className="text-3xl text-blue-500" />
+            </Marker>
+          )}
+          {destCoords && (
+            <Marker longitude={destCoords[0]} latitude={destCoords[1]} color="blue">
+              <EnvironmentFilled className="text-3xl text-green-500" />
+            </Marker>
+          )}
+        </Map>
       </div>
-
+      <div className="w-full lg:w-1/3 bg-white shadow-lg overflow-auto p-4 lg:p-6">
+        <Text className="text-2xl font-semibold mb-4 block text-gray-800">Route Information</Text>
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+          <Text className="font-medium text-blue-700">Total Distance: </Text>
+          <Text className="text-blue-600 font-bold">
+            {selectedRouteIndex !== null
+              ? `${(routes[selectedRouteIndex].distance / 1000).toFixed(2)} km`
+              : 'N/A'}
+          </Text>
+        </div>
+        <Text className="text-lg font-medium mb-2 block text-gray-700">Available Routes:</Text>
+        <Radio.Group
+          onChange={(e) => handleRouteSelect(e.target.value)}
+          value={selectedRouteIndex}
+          className="space-y-4 w-full"
+        >
+          {routes.map((route, index) => (
+            <Radio key={index} value={index} className="block w-full">
+              <div className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200">
+                <Text className="font-medium" style={{ color: ROUTE_COLORS[index % ROUTE_COLORS.length] }}>
+                  Route {index + 1}
+                </Text>
+                <div className="mt-1 space-y-1">
+                  <Text className="block text-sm text-gray-600">Distance: {(route.distance / 1000).toFixed(2)} km</Text>
+                  <Text className="block text-sm text-gray-600">Duration: {(route.duration / 60).toFixed(2)} minutes</Text>
+                </div>
+              </div>
+            </Radio>
+          ))}
+        </Radio.Group>
+        <Button
+          type="primary"
+          onClick={handleBookRoute}
+          disabled={selectedRouteIndex === null}
+          className="mt-6 w-full bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105"
+        >
+          Book Selected Route
+        </Button>
+      </div>
     </div>
+  </div>
   );
 };
 

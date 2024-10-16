@@ -10,6 +10,7 @@ export const routePaths = {
     adminprofile:"/adminprofile",
     addLocations:"/addLocations",
     bookingconfirmation:"bookingconfirmation",
+    bookingsucess:"bookingsucess",
     driverProfile:"/driverProfile",
     signIn: '/sign-in',
     settings: '/settings',

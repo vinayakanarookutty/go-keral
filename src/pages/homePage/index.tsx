@@ -2,41 +2,43 @@ import React,{useState} from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser,  faHome, faInfoCircle, faDollar, faPhone, faSignInAlt, faUserPlus, faComment, faStar, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
-
+import { AppstoreOutlined, MailOutlined, MenuUnfoldOutlined, SettingOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
+import { Menu } from 'antd';
 const HomePage: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const popularRoutes = [
     {
       name: "Allepey house boat",
       image:
-        "https://www.ekeralatourism.net/wp-content/uploads/2018/03/Alleppey.jpg",
+        "../../../public/allapey.jpg",
       description:
         "Alappuzha is a prominent tourist destination in Kerala. The town is famous for its waterways and backwaters, and has been described as the Venice of the East.",
     },
     {
       name: "Munnar",
-      image: "https://static.toiimg.com/photo/58490365.cms",
+      image: "../../../public/idukki.jpg",
       description:
         "Munnar is situated at the confluence of three mountain streams – Muthirapuzha, Nallathanni and Kundala – and the word 'Munnar' means three rivers in Malayalam.",
     },
     {
       name: "Palakkad",
       image:
-        "https://keralatourism.travel/images/destinations/headers/palakkad-kerala-tourism-entry-fee-timings-holidays-reviews-header.jpg",
+        "../../../public/munnar.jpg",
       description:
         "Palakkad is in the central region of Kerala, bordered by the Malappuram, Thrissur, Nilgiris, and Coimbatore districts. It's about 216 miles northeast of the state capital, Thiruvananthapuram.",
     },
     {
       name: "Jadayu para",
       image:
-        "https://www.tripsavvy.com/thmb/_3Tm8T8GU_-9LlD4PsPb3orHjlc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Jatayu-National-Park-Kerala-1024x512_Snapseed-5aafa43eff1b780036c19082.jpg",
+        "../../../public/jatayu.jpg",
       description:
         "Jatayu Earth Center, also known as Jatayu Nature Park or Jatayu Rock, is a park and tourism centre at Chadayamangalam in Kollam district of Kerala, India.",
     },
     {
       name: "Trivandrum",
       image:
-        "https://resources.thomascook.in/images/holidays/staticPage/ThingsToDo/trivandrum5.jpg",
+        "../../../public/sree.jpg",
       description:
         "Thiruvananthapuram, formerly known as Trivandrum, is the capital city of the Indian state of Kerala.",
     },
@@ -66,17 +68,7 @@ const HomePage: React.FC = () => {
 
   ];
   const reviews = [
-    {
-      author: "John D.",
-      content:
-        "Great service! The car was clean and the driver was professional.",
-      rating: 5,
-    },
-    {
-      author: "Sarah M.",
-      content: "Easy booking process and competitive prices. Will use again!",
-      rating: 4,
-    },
+    
     {
       author: "Mike R.",
       content: "Excellent experience from start to finish. Highly recommended!",
@@ -107,204 +99,96 @@ const HomePage: React.FC = () => {
     setCurrentSlide((prev) => (prev === 0 ? popularRoutes.length - 1 : prev - 1));
   };
 
+  const items: MenuItem[] = [
+    {
+      key: 'sub1',
+      icon: <MenuUnfoldOutlined/>,
+      children: [
+        {
+          key: 'g1',
+          label: 'Item 1',
+          type: 'group',
+          children: [
+            { key: '1', label: 'Option 1' },
+            { key: '2', label: 'Option 2' },
+          ],
+        },
+        {
+          key: 'g2',
+          label: 'Item 2',
+          type: 'group',
+          children: [
+            { key: '3', label: 'Option 3' },
+            { key: '4', label: 'Option 4' },
+          ],
+        },
+      ],
+    },
+    
+  ];
+  const onClick: MenuProps['onClick'] = (e) => {
+    console.log('click ', e);
+  };
+
 
   return (
-    <div className="min-h-screen flex flex-col">
+    
+   <div >
+
+ 
+    <div style={{ backgroundImage: "url('../../../public/background.jpg')",backgroundSize: 'cover',
+      backgroundPosition: 'center',}} className="min-h-screen flex flex-col ">
       {/* Header */}
-      <header className="bg-blue-900 fixed w-full z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <header  className=" fixed w-full z-10">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex ">
-          <a href="#" className="text-white flex items-center bold">
+          <a href="#" style={{fontFamily:"Lobster",fontSize:"40px"}} className="text-white flex items-center bold text-2xl">
               Go Keral
             </a>
-          <img src="../../../public/gokeral.png" alt="Go Keral Logo" className="h-12" />
+          <img src="../../../public/gokeral.png" alt="Go Keral Logo" className="h-20" />
           </div>
-       
+       {/* <div className="pt-[10%]">
+       <Menu
+      onClick={onClick}
+      style={{ width: 86 }}
+      defaultSelectedKeys={['1']}
+      defaultOpenKeys={['sub1']}
+      mode="inline"
+      items={items}
+    />
+
+       </div> */}
          
-          <nav className="hidden md:flex space-x-4">
-            <a href="#" className="text-white flex items-center">
-              <FontAwesomeIcon icon={faHome} className="mr-2" />
-              Home
-            </a>
-            <a href="#" className="text-white flex items-center">
-              <FontAwesomeIcon icon={faInfoCircle} className="mr-2" />
-              About Us
-            </a>
-            <a href="#" className="text-white flex items-center">
-              <FontAwesomeIcon icon={faDollar} className="mr-2" />
-              Pricing
-            </a>
-            <a href="#" className="text-white flex items-center">
-              <FontAwesomeIcon icon={faPhone} className="mr-2" />
-              Contact
-            </a>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center">
+          {/* <nav className="hidden md:flex space-x-4 ">
+          
+            <button style={{fontWeight:"700",fontSize:"20px"}} className="bg-white-900 text-black text-white px-12 py-2 rounded-full flex items-center">
               <FontAwesomeIcon icon={faSignInAlt} className="mr-2" />
               Login
             </button>
-            <button className="bg-white text-blue-900 px-4 py-2 rounded-full flex items-center">
+            <button style={{fontWeight:"700",fontSize:"20px"}} className="bg-white-900 text-black text-blue-900 px-12 py-2  flex items-center">
               <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
               Sign Up
             </button>
-          </nav>
+          </nav> */}
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-grow pt-[5%] px-4 sm:px-6 lg:px-8 ">
-        {/* Hero Section */}
-        <div className="relative h-96 mb-8 bg-cover bg-center" style={{backgroundImage: "url(https://images.unsplash.com/photo-1663597675745-96a3f784369e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)"}}>
-          <div className="absolute inset-0 bg-black opacity-60"></div>
+   <div>
+   <div className="relative h-96 mb-8 bg-cover bg-center pt-[25.5%] " >
+          <div className="absolute inset-0"></div>
           <div className="relative z-10 h-full flex flex-col justify-center px-8">
             <h1 className="text-5xl font-bold text-white mb-4">Book Your Ride Today</h1>
             <p className="text-xl text-white max-w-lg">Experience comfort and convenience with our premium vehicle booking service</p>
-            <a href="/maps"><button  className="bg-white opacity-2 text-gray-800 px-6 py-2 rounded-lg font-bold w-[30%] mt-5">Book Now</button></a>
+            <a href="/maps"><button  className="bg-white opacity-2 text-gray-800 px-6 py-2 rounded-lg font-bold w-[10%] mt-5">Book Now</button></a>
+          
           </div>
         </div>
 
-        {/* Search Form */}
-        {/* <div className="bg-blue-900 rounded-lg shadow-lg p-6 mb-8 relative overflow-hidden">
-          <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{backgroundImage: "url(bgCar.png)"}}></div>
-          <h2 className="text-2xl font-bold text-white text-center mb-4 relative z-10">Find Your Perfect Ride</h2>
-          <form className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
-            <input type="text" placeholder="Pickup Location" className="w-full p-3 rounded-lg" />
-            <input type="text" placeholder="Drop-off Location" className="w-full p-3 rounded-lg" />
-            <input type="text" placeholder="Vehicle Type" className="w-full p-3 rounded-lg" />
-            <div className="md:col-span-2">
-              <input type="text" placeholder="Date Range" className="w-full p-3 rounded-lg" />
-            </div>
-            <button type="submit" className="bg-blue-500 text-white p-3 rounded-lg flex items-center justify-center">
-              <FontAwesomeIcon icon={faCar} className="mr-2" />
-              Search Vehicles
-            </button>
-          </form>
-        </div> */}
 
-        {/* Popular Routes */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">Popular Destinations</h2>
-          <div className="relative h-[600px] w-full">
-            <div className="relative h-full overflow-hidden rounded-2xl">
-              {popularRoutes.map((route, index) => (
-                <div
-                  key={index}
-                  className={`absolute w-full h-full transition-all duration-700 ease-in-out transform ${
-                    index === currentSlide ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
-                  }`}
-                >
-                  <div className="relative h-full w-full">
-                    <img
-                      src={route.image}
-                      alt={route.name}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent">
-                      <div className="h-full flex flex-col justify-center p-12 max-w-2xl">
-                        <h3 className="text-4xl font-bold text-white mb-4">{route.name}</h3>
-                        <p className="text-lg text-white/90 mb-6">{route.description}</p>
-                        <button className="bg-blue-600 hover:bg-blue-700 text-white w-fit px-6 py-3 rounded-lg font-bold transition-all">
-                          Explore Now
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-               {/* Carousel Controls */}
-               <button
-              onClick={prevSlide}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 backdrop-blur-md text-white p-4 rounded-full transition-all"
-            >
-              <FontAwesomeIcon icon={faChevronLeft} className="text-2xl" />
-            </button>
-            <button
-              onClick={nextSlide}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 backdrop-blur-md text-white p-4 rounded-full transition-all"
-            >
-              <FontAwesomeIcon icon={faChevronRight} className="text-2xl" />
-            </button>
-
-            {/* Carousel Indicators */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2">
-              {popularRoutes.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentSlide ? 'bg-white scale-125' : 'bg-white/50'
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Enhanced Vehicle Types Section */}
-        <div className="mb-16 bg-gray-50 py-12 rounded-2xl">
-          <div className="max-w-7xl mx-auto px-2">
-            <h2 className="text-3xl font-bold mb-8 text-center">Choose Your Perfect Ride</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {vehicleTypes.map((vehicle, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-all">
-                  <div className="relative h-48">
-                    <img src={vehicle.image} alt={vehicle.title} className="w-full h-full object-cover" />
-                    <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full">
-                      {vehicle.price}
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold mb-2">{vehicle.title}</h3>
-                    <p className="text-gray-600 mb-4">{vehicle.description}</p>
-                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition-all">
-                      Book Now
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-    
-        {/* Special Offer */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-700 rounded-lg shadow-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-2">Special Offer</h2>
-              <p className="text-white mb-4 md:mb-0">Get 15% off on your first booking! Don't miss this limited time offer.</p>
-            </div>
-            <button className="bg-white text-blue-500 px-6 py-2 rounded-lg font-bold">Claim</button>
-          </div>
-        </div>
-
-        {/* Customer Reviews */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Customer Reviews</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {reviews.map((review, index) => (
-              <div key={index} className="bg-gray-100 rounded-lg p-6 transform hover:scale-105 transition duration-300">
-                <div className="flex items-center mb-4">
-                  <FontAwesomeIcon icon={faUser} className="text-blue-500 text-3xl mr-4" />
-                  <div>
-                    <h3 className="font-bold">{review.author}</h3>
-                    <div className="flex">
-                      {[...Array(review.rating)].map((_, i) => (
-                        <FontAwesomeIcon key={i} icon={faStar} className="text-yellow-400" />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="italic text-gray-600">{review.content}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
+   </div>
 
       {/* Footer */}
-      <footer className="bg-blue-900 text-white py-8">
+      {/* <footer className="bg-blue-900 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center space-x-6 mb-4">
             <a href="#" className="text-white hover:text-gray-300">
@@ -320,12 +204,19 @@ const HomePage: React.FC = () => {
           <p className="text-center mb-2">Contact: info@vehiclebooking.com | Phone: (123) 456-7890</p>
           <p className="text-center">© 2024 VehicleBooking. All rights reserved.</p>
         </div>
-      </footer>
+      </footer> */}
+  
 
       {/* Chat Bot */}
       <button className="fixed right-6 bottom-6 bg-blue-500 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg">
         <FontAwesomeIcon icon={faComment} className="text-2xl" />
       </button>
+    </div>
+    
+        {/* Popular Routes */}
+      
+      
+ 
     </div>
   );
 };

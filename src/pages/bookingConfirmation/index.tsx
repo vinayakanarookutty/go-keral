@@ -1,48 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Typography, Card, List, Avatar, Spin, Rate, Table,message, Divider, Row, Col, Button } from 'antd';
-import { CarOutlined, UserOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Typography, Avatar, Spin, Rate, message, Input, Modal } from 'antd';
+import { UserOutlined, SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
+
 const { Title, Text } = Typography;
 
-// Define dummy data for vehicle, driver, and tourist places
-const dummyVehicle = {
-  id: '1',
-  name: 'Toyota Innova',
-  type: 'SUV',
-  seats: 7,
-  imageUrl: 'https://via.placeholder.com/150',
-};
-
-const dummyDriver = {
-  id: '1',
-  name: 'Rahul Sharma',
-  rating: 4.5,
-  experience: 5,
-  imageUrl: 'https://via.placeholder.com/150',
-};
-
-const dummyNearbyPlaces = [
-  {
-    id: '1',
-    name: 'Munnar Hill Station',
-    description: 'A beautiful hill station known for tea plantations.',
-    distance: 15.23,
-    rating: 4.5,
-    imageUrl: 'https://via.placeholder.com/150',
-  },
-  {
-    id: '2',
-    name: 'Periyar Wildlife Sanctuary',
-    description: 'A popular wildlife reserve with boat rides.',
-    distance: 30.1,
-    rating: 4.2,
-    imageUrl: 'https://via.placeholder.com/150',
-  },
-];
-
-const BookingConfirmation: React.FC = () => {
+const BookingConfirmation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const bookingDetails = location.state || {
     origin: 'Cochin',
     destination: 'Munnar',
@@ -51,152 +17,174 @@ const BookingConfirmation: React.FC = () => {
   };
 
   const [loading, setLoading] = useState(true);
-  const [vehicles, setVehicles] = useState([]);
   const [driverList, setDriverList] = useState([]);
-  // Simulate loading effect
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
   useEffect(() => {
-    fetchVehicles()
-    fetchDriverDetails()
-    const timeout = setTimeout(() => setLoading(false), 1000); // Simulate a delay
-    return () => clearTimeout(timeout);
+    fetchDriverDetails();
   }, []);
 
-  const fetchVehicles = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/getvehicles');
-      console.log('Fetched Vehicles:', response.data); // Check the structure
-      const data = Array.isArray(response.data) ? response.data : [];
-      setVehicles(data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching vehicles:', error);
-      message.error('Failed to fetch vehicles');
-      setLoading(false);
-    }
-  };
-
   const fetchDriverDetails = async () => {
+    setLoading(true);
     try {
       const response = await axios.get('http://localhost:3000/driverList');
-      console.log('Fetched DriverList:', response.data); // Check the structure
-      const data = Array.isArray(response.data) ? response.data : [];
-      setDriverList(data)
-      setLoading(false);
+      setDriverList(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
-      console.error('Error fetching vehicles:', error);
-      message.error('Failed to fetch vehicles');
+      console.error('Error fetching drivers:', error);
+      message.error('Failed to fetch drivers');
+    } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return <Spin size="large" className="flex justify-center items-center h-screen" />;
-  }
+  const handleDriverSelect = (driver) => {
+    setSelectedDriver(driver);
+    setIsModalVisible(true);
+  };
 
-  const userColumns = [
-    { title: 'Name', dataIndex: 'name', key: 'name' },
-    { title: 'Email', dataIndex: 'email', key: 'email' },
-    { title: 'Phone', dataIndex: 'phone', key: 'phone' },
-  ];
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+  };
 
-  const userData = [
-    { key: '1', name: 'John Doe', email: 'john@example.com', phone: '123-456-7890' },
-  ];
+  const confirmBooking = async () => {
+    if (!selectedDriver) {
+      message.error('Please select a driver');
+      return;
+    }
+  
+    setLoading(true);
+    try {
+      const bookingData = {
+        ...bookingDetails,
+        driverId: selectedDriver.id,
+        driverName: selectedDriver.name,
+        driverRating: selectedDriver.rating,
+      };
+  
+      const response = await axios.post('http://localhost:3000/bookings', bookingData);
+  
+      if (response.status === 201) {
+        message.success('Booking confirmed successfully!');
+        navigate('/bookingsucess');
+      } else {
+        throw new Error('Booking failed');
+      }
+    } catch (error) {
+      console.error('Error confirming booking:', error);
+      message.error('An error occurred while confirming the booking. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredDrivers = driverList.filter((driver) =>
+    driver.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <Title level={2} className="mb-8 text-center">
-        Booking Confirmation
-      </Title>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+      <div className="container mx-auto px-4 py-8">
+        <Title level={2} className="text-center text-green-800 mb-8">
+          Select a Driver
+        </Title>
 
-      <Row gutter={16}>
-        <Col span={12}>
-          <Card className="mb-8">
-            <Title level={4}>Trip Details</Title>
-            <div className="grid grid-cols-2 gap-4">
-              <Text><strong>Origin:</strong> {bookingDetails.origin}</Text>
-              <Text><strong>Destination:</strong> {bookingDetails.destination}</Text>
-              <Text><strong>Distance:</strong> {bookingDetails.distance} km</Text>
-              <Text><strong>Duration:</strong> {bookingDetails.duration} minutes</Text>
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <Title level={4} className="text-green-700 mb-4">Trip Details</Title>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Text strong>Origin:</Text> {bookingDetails.origin}
             </div>
-          </Card>
-        </Col>
+            <div>
+              <Text strong>Destination:</Text> {bookingDetails.destination}
+            </div>
+            <div>
+              <Text strong>Distance:</Text> {bookingDetails.distance} km
+            </div>
+            <div>
+              <Text strong>Duration:</Text> {bookingDetails.duration} minutes
+            </div>
+          </div>
+        </div>
 
-        <Col span={12}>
-          <Card className="mb-8">
-            <Title level={4}>User Information</Title>
-            <Table columns={userColumns} dataSource={userData} pagination={false} />
-          </Card>
-        </Col>
-      </Row>
-      <Title level={4}>Vehicle Details</Title>
-{
-    vehicles.map((vehicles:any)=>{
-return (
-    <Card className="mb-2">
-   
-    <div className="flex items-center">
-      <Avatar size={64} icon={<CarOutlined />} src={dummyVehicle.imageUrl} />
-      <div className="ml-4">
-        <Text strong className="block">{vehicles.make}</Text>
-        <Text>Model: {vehicles.model}</Text>
-        <Text className="block">Type: {dummyVehicle.type}</Text>
-      </div>
-    </div>
-  </Card>
-)
-    })
-
-}
-<Title level={4}>Driver Details</Title>
-{
-    driverList.map((driver:any)=>{
-return (
-    <Card className="mb-2">
-   
-    <div className="flex items-center">
-      <Avatar size={64} icon={<CarOutlined />} src={dummyVehicle.imageUrl} />
-      <div className="ml-4">
-        <Text strong className="block">{driver.name}</Text>
-        <Text>Email: {driver.email}</Text>
-      </div>
-    </div>
-  </Card>
-)
-    })
-
-}
-     
-
-      <Card className="mb-8">
-        <Title level={4}>Nearby Tourist Places</Title>
-        <List
-          itemLayout="horizontal"
-          dataSource={dummyNearbyPlaces}
-          renderItem={(place) => (
-            <List.Item>
-              <List.Item.Meta
-                avatar={<Avatar icon={<EnvironmentOutlined />} src={place.imageUrl} />}
-                title={<Text strong>{place.name}</Text>}
-                description={
-                  <>
-                    <Text className="block">{place.description}</Text>
-                    <Text className="block">Distance: {place.distance.toFixed(2)} km</Text>
-                    <Rate disabled defaultValue={place.rating} />
-                  </>
-                }
-              />
-            </List.Item>
-          )}
+        <Input
+          prefix={<SearchOutlined />}
+          placeholder="Search drivers by name"
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="mb-6"
         />
-      </Card>
 
-      <Divider />
-      <div className="text-center">
-        <Button type="primary" size="large">
-          Confirm Booking
-        </Button>
+        {loading ? (
+          <div className="text-center">
+            <Spin size="large" />
+          </div>
+        ) : filteredDrivers.length === 0 ? (
+          <div className="text-center">
+            <Text>No drivers found</Text>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {filteredDrivers.map((driver) => (
+              <div
+                key={driver.id}
+                className={`bg-white rounded-lg shadow-md p-6 cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                  selectedDriver?.id === driver.id ? 'border-green-500 border-2' : ''
+                }`}
+                onClick={() => handleDriverSelect(driver)}
+              >
+                <div className="flex flex-col items-center">
+                  <Avatar size={80} icon={<UserOutlined />} src={driver.imageUrl} />
+                  <Text strong className="mt-4 text-lg">{driver.name}</Text>
+                  <Rate disabled defaultValue={driver.rating} className="my-2" />
+                  <Text>Experience: {driver.experience} years</Text>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="text-center">
+          <button
+            onClick={confirmBooking}
+            className={`px-8 py-3 rounded-full text-white font-semibold transition-all duration-300 ${
+              selectedDriver
+                ? 'bg-green-600 hover:bg-green-700'
+                : 'bg-gray-400 cursor-not-allowed'
+            }`}
+            disabled={!selectedDriver || loading}
+          >
+            {loading ? 'Processing...' : 'Confirm Booking'}
+          </button>
+        </div>
       </div>
+
+      <Modal
+        title="Driver Details"
+        visible={isModalVisible}
+        onCancel={handleModalClose}
+        footer={[
+          <button
+            key="close"
+            onClick={handleModalClose}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors duration-300"
+          >
+            Close
+          </button>,
+        ]}
+      >
+        {selectedDriver && (
+          <div className="flex flex-col items-center">
+            <Avatar size={100} icon={<UserOutlined />} src={selectedDriver.imageUrl} />
+            <Title level={4} className="mt-4">{selectedDriver.name}</Title>
+            <Rate disabled defaultValue={selectedDriver.rating} className="my-2" />
+            <Text className="mt-2">Experience: {selectedDriver.experience} years</Text>
+            <Text className="mt-2">Languages: {selectedDriver.languages || 'English, Hindi'}</Text>
+            <Text className="mt-2">License Type: {selectedDriver.licenseType || 'Commercial'}</Text>
+            <Text className="mt-2">Vehicle: {selectedDriver.vehicle || 'Toyota Innova'}</Text>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
