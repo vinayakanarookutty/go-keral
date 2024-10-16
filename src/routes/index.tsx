@@ -1,17 +1,19 @@
-import { createBrowserRouter } from 'react-router-dom'
-import { NotFound } from '../components/notFound'
-import HomePage from '../pages/homePage'
-import { routePaths } from '../config'
-import Maps from '../pages/maps'
-import { DriverRegistrationPage } from '../pages/driverRegistration'
-import DriverProfile from '../pages/driverprofile'
-import DriverLogin from '../pages/driverLogin'
-import { AdminLogin } from '../pages/adminLogin'
-import AdminRegistrationPage from '../pages/adminRegistration'
-import AdminProfile from '../pages/adminProfile'
-import DestinationMap from '../pages/addLocations'
-import BookingConfirmation from '../pages/bookingConfirmation'
-import BookingsPage from '../pages/bookings'
+import { createBrowserRouter } from "react-router-dom";
+import { NotFound } from "../components/notFound";
+import HomePage from "../pages/homePage";
+import { routePaths } from "../config";
+import Maps from "../pages/maps";
+import { DriverRegistrationPage } from "../pages/driverRegistration";
+import DriverProfile from "../pages/driverprofile";
+import DriverLogin from "../pages/driverLogin";
+import { AdminLogin } from "../pages/adminLogin";
+import AdminRegistrationPage from "../pages/adminRegistration";
+import AdminProfile from "../pages/adminProfile";
+import DestinationMap from "../pages/addLocations";
+import BookingConfirmation from "../pages/bookingConfirmation";
+import BookingsPage from "../pages/bookings";
+import UserLogin from "../pages/userLogin";
+import UserSignUp from "../pages/userSignUp";
 
 // import { routePaths } from '../config'
 // import Maps from '../maps'
@@ -87,6 +89,10 @@ export const router = createBrowserRouter([
     {
         path: routePaths.userLogin,
         element: <UserLogin />,
+    },
+    {
+        path: routePaths.userRegistration,
+        element: <UserSignUp />,
     },
     {
         path: "*",
