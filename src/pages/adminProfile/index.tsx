@@ -3,6 +3,7 @@ import { Tabs, Card, Avatar, Typography, Form, Input, Button, Table, Tag, Modal,
 import { UserOutlined, CarOutlined, SettingOutlined, PlusOutlined, BellOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 import { Image } from 'antd';
+import PdfComp from '../../components/pdf';
 
 import axios from 'axios';
 
@@ -21,7 +22,105 @@ export default function AdminProfile() {
   const [form] = Form.useForm();
   const location = useLocation();
   const { email } = location.state || {};
+  const [vehicles, setVehicles] = useState([]);
+  const [pdfFile, setPdfFile] = useState(null);
+  const [bookings, setBookings] = useState([]);
  
+
+  useEffect(() => {
+    fetchBookings();
+    fetchVehicles()
+  }, []);
+
+  const fetchBookings = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('http://localhost:3000/bookings');
+      setBookings(response.data);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      message.error('Failed to fetch bookings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  
+  const fetchVehicles = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/getvehicles');
+      console.log('Fetched Vehicles:', response.data); // Check the structure
+      const data = Array.isArray(response.data) ? response.data : [];
+      setVehicles(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching vehicles:', error);
+      message.error('Failed to fetch vehicles');
+      setLoading(false);
+    }
+  };
+  const handleFileClick = async (filePath) => {
+    console.log("haiiii")
+    setPdfFile(`http://localhost:3000/${filePath}`);
+    const response = await fetch(`http://localhost:3000/${filePath}`);
+  
+    if (response.ok) {
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      
+      // Open the PDF in a new window or tab
+      window.open(url, '_blank');
+    }
+  };
+
+  const columnsVehicle = [
+    { title: 'Make', dataIndex: 'make', key: 'make' },
+    { title: 'Model', dataIndex: 'model', key: 'model' },
+    { title: 'Year', dataIndex: 'year', key: 'year' },
+    { title: 'License Plate', dataIndex: 'licensePlate', key: 'licensePlate' },
+    { title: 'Type', dataIndex: 'type', key: 'type' },
+    {
+      title: 'Driving Licence',
+      dataIndex: 'Driving_Licence',
+      key: 'Driving_Licence',
+      render: (text, record) => (
+        <Button onClick={() => handleFileClick(record.Driving_Licence)}>
+          View Driving Licence
+        </Button>
+      ),
+    },
+    {
+      title: 'Vehicle Insurance Proof',
+      dataIndex: 'Vehicle_Insurance_Proof',
+      key: 'Vehicle_Insurance_Proof',
+      render: (text, record) => (
+        <Button onClick={() => handleFileClick(record.Vehicle_Insurance_Proof)}>
+          View Insurance
+        </Button>
+      ),
+    },
+    {
+      title: 'Proof Of Address',
+      dataIndex: 'Proof_Of_Address',
+      key: 'Proof_Of_Address',
+      render: (text, record) => (
+        <Button onClick={() => handleFileClick(record.Proof_Of_Address)}>
+          View Address Proof
+        </Button>
+      ),
+    },
+    {
+      title: 'Police Clearance Certificate',
+      dataIndex: 'Police_Clearance_Certificate',
+      key: 'Police_Clearance_Certificate',
+      render: (text, record) => (
+        <Button onClick={() => handleFileClick(record.Police_Clearance_Certificate)}>
+          View Police Certificate
+        </Button>
+      ),
+    },
+  ];
+  
 
   
   useEffect(() => {
@@ -132,7 +231,14 @@ const columns = [
   ];
   
   
-
+  const columns2 = [
+    { title: 'Origin', dataIndex: 'origin', key: 'origin' },
+    { title: 'Destination', dataIndex: 'destination', key: 'destination' },
+    { title: 'Distance', dataIndex: 'distance', key: 'distance' },
+    { title: 'Duration', dataIndex: 'duration', key: 'duration' },
+    { title: 'DriverName', dataIndex: 'driverName', key: 'driverName' },
+    
+  ];
 
   
   return (
@@ -158,16 +264,12 @@ const columns = [
           {/* Profile Header Card */}
           <Card
             className="mb-8 overflow-hidden"
-            cover={
-              <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-500 relative">
-                <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/20 to-transparent" />
-              </div>
-            }
+           
           >
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <Image
                 width={200}
-                src="https://media.licdn.com/dms/image/v2/D4D03AQEC69DCIIkfBQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1700038154034?e=1733961600&v=beta&t=OWhxPsXrtwd8658lrZKp4Nd5b9esgT8H8qorLeuStZw"
+                src="https://i.pinimg.com/236x/85/59/09/855909df65727e5c7ba5e11a8c45849a.jpg"
               />
               <div className="text-center sm:text-left -mt-8 sm:mt-0">
                 <Title level={2} className="!mb-0">{userDetails?.name}</Title>
@@ -267,6 +369,77 @@ const columns = [
   rowKey="_id"
 />
                     </>
+                  ),
+                },
+                {
+                  key: '5',
+                  label: (
+                    <span className="flex items-center px-2">
+                      <UserOutlined className="mr-2" />
+                      <span className="hidden sm:inline">Bookings</span>
+                    </span>
+                  ),
+                  children: (
+                    <div>
+                     
+                      <Table
+  columns={columns2}
+  dataSource={bookings || []} // Default to empty array
+  scroll={{ x: true }}
+  className="custom-table"
+  pagination={{
+    responsive: true,
+    defaultPageSize: 5,
+    showSizeChanger: true,
+    showTotal: (total, range) =>
+      `${range[0]}-${range[1]} of ${total} items`,
+  }}
+  loading={loading}
+  rowKey="_id"
+/>
+
+                    </div>
+                  ),
+                },
+                {
+                  key: '6',
+                  label: (
+                    <span className="flex items-center px-2">
+                      <CarOutlined className="mr-2" />
+                      <span className="hidden sm:inline">Vehicles</span>
+                    </span>
+                  ),
+                  children: (
+                    <div>
+                     
+                      <Table
+  columns={columnsVehicle}
+  dataSource={vehicles || []} // Default to empty array
+  scroll={{ x: true }}
+  className="custom-table"
+  pagination={{
+    responsive: true,
+    defaultPageSize: 5,
+    showSizeChanger: true,
+    showTotal: (total, range) =>
+      `${range[0]}-${range[1]} of ${total} items`,
+  }}
+  loading={loading}
+  rowKey="_id"
+/>
+{pdfFile && (
+        <div style={{ marginTop: 20 }}>
+          <h3>PDF Preview</h3>
+          <div style={{ height: '750px' }}>
+          {/* <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.15.349/build/pdf.worker.min.js">
+  <Viewer fileUrl={pdfFile} />
+</Worker> */}
+  <PdfComp pdfFile={pdfFile}/>
+  
+          </div>
+        </div>
+      )}
+                    </div>
                   ),
                 },
               ]}

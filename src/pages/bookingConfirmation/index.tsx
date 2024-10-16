@@ -21,11 +21,26 @@ const BookingConfirmation = () => {
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
-
+  const [vehicles, setVehicles] = useState([]);
   useEffect(() => {
     fetchDriverDetails();
+    fetchVehicles()
   }, []);
 
+
+  const fetchVehicles = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/getvehicles');
+      console.log('Fetched Vehicles:', response.data); // Check the structure
+      const data = Array.isArray(response.data) ? response.data : [];
+      setVehicles(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching vehicles:', error);
+      message.error('Failed to fetch vehicles');
+      setLoading(false);
+    }
+  };
   const fetchDriverDetails = async () => {
     setLoading(true);
     try {
@@ -86,9 +101,7 @@ const BookingConfirmation = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <div className="container mx-auto px-4 py-8">
-        <Title level={2} className="text-center text-green-800 mb-8">
-          Select a Driver
-        </Title>
+     
 
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <Title level={4} className="text-green-700 mb-4">Trip Details</Title>
@@ -107,7 +120,9 @@ const BookingConfirmation = () => {
             </div>
           </div>
         </div>
-
+        <Title level={2} className="text-center text-green-800 mb-8">
+          Select a Driver
+        </Title>
         <Input
           prefix={<SearchOutlined />}
           placeholder="Search drivers by name"
@@ -185,6 +200,50 @@ const BookingConfirmation = () => {
           </div>
         )}
       </Modal>
+
+
+
+
+      {/* Vehicle */}
+      <Title level={2} className="text-center text-green-800 mb-8">
+          Select a Vehicle
+        </Title>
+        <Input
+          prefix={<SearchOutlined />}
+          placeholder="Search drivers by name"
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="mb-6"
+        />
+
+        {loading ? (
+          <div className="text-center">
+            <Spin size="large" />
+          </div>
+        ) : filteredDrivers.length === 0 ? (
+          <div className="text-center">
+            <Text>No drivers found</Text>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {vehicles.map((driver) => (
+              <div
+                key={driver.id}
+                className={`bg-white rounded-lg shadow-md p-6 cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                  selectedDriver?.id === driver.id ? 'border-green-500 border-2' : ''
+                }`}
+                onClick={() => handleDriverSelect(driver)}
+              >
+                <div className="flex flex-col items-center">
+                  <Avatar size={80} icon={<UserOutlined />} src={driver.make} />
+                  <Text strong className="mt-4 text-lg">{driver.make}</Text>
+                  <Rate disabled defaultValue={driver.rating} className="my-2" />
+                  <Text>Year: {driver.year} years</Text>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        
     </div>
   );
 };

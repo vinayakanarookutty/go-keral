@@ -25,7 +25,25 @@ export default function DriverProfile() {
   const [fileList3, setFileList3] = useState([]);
   const [fileList4, setFileList4] = useState([]);
   const [pdfFile, setPdfFile] = useState(null);
+  const [bookings, setBookings] = useState([]);
+  
 
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('http://localhost:3000/bookings');
+      setBookings(response.data);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      message.error('Failed to fetch bookings');
+    } finally {
+      setLoading(false);
+    }
+  };
   const showModal = () => setIsModalVisible(true);
   useEffect(() => {
     fetch(`http://localhost:3000/driverDetails?id=${email}`, {
@@ -197,7 +215,14 @@ export default function DriverProfile() {
     },
   ];
   
-
+  const columns2 = [
+    { title: 'Origin', dataIndex: 'origin', key: 'origin' },
+    { title: 'Destination', dataIndex: 'destination', key: 'destination' },
+    { title: 'Distance', dataIndex: 'distance', key: 'distance' },
+    { title: 'Duration', dataIndex: 'duration', key: 'duration' },
+    { title: 'DriverName', dataIndex: 'driverName', key: 'driverName' },
+    
+  ];
 
   const handleUpload = (info, setFileList) => {
     const { fileList } = info;
@@ -221,7 +246,7 @@ export default function DriverProfile() {
         </div>
       </Header>
 
-      <Content className="p-8 bg-gray-50">
+      <Content  className="p-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           {/* Profile Header Card */}
           <Card
@@ -263,19 +288,10 @@ export default function DriverProfile() {
                   ),
                   children: (
                     <div>
-                      <div className="mb-6">
-                        <Button
-                          type="primary"
-                          icon={<PlusOutlined />}
-                          onClick={showModal}
-                          size="large"
-                        >
-                          Add Vehicle
-                        </Button>
-                      </div>
+                     
                       <Table
-  columns={columns}
-  dataSource={vehicles || []} // Default to empty array
+  columns={columns2}
+  dataSource={bookings || []} // Default to empty array
   scroll={{ x: true }}
   className="custom-table"
   pagination={{
@@ -288,18 +304,7 @@ export default function DriverProfile() {
   loading={loading}
   rowKey="_id"
 />
-{pdfFile && (
-        <div style={{ marginTop: 20 }}>
-          <h3>PDF Preview</h3>
-          <div style={{ height: '750px' }}>
-          {/* <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.15.349/build/pdf.worker.min.js">
-  <Viewer fileUrl={pdfFile} />
-</Worker> */}
-  <PdfComp pdfFile={pdfFile}/>
-  
-          </div>
-        </div>
-      )}
+
                     </div>
                   ),
                 },
