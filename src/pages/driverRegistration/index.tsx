@@ -39,14 +39,15 @@ export function DriverRegistrationPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-400 to-indigo-600">
+    <div  style={{ backgroundImage: "url('../../../public/background.jpg')",backgroundSize: 'cover',
+      backgroundPosition: 'center'}} className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-r ">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-2xl relative overflow-hidden">
         {/* Background decorative elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
           <img src="/api/placeholder/1000/800" alt="Background" className="object-cover w-full h-full opacity-5" />
         </div>
-        <div className="absolute top-0 right-0 w-40 h-40 bg-yellow-300 rounded-full transform translate-x-1/3 -translate-y-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-40 h-40 bg-pink-300 rounded-full transform -translate-x-1/3 translate-y-1/3"></div>
+        <div className="absolute top-0 right-0 w-40 h-40  rounded-full transform translate-x-1/3 -translate-y-1/3"></div>
+        <div className="absolute bottom-0 left-0 w-40 h-40 rounded-full transform -translate-x-1/3 translate-y-1/3"></div>
 
         {/* Content */}
         <div className="relative z-10">
