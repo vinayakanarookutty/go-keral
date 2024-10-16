@@ -238,7 +238,7 @@ export default function DriverProfile() {
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <Image
                 width={200}
-                src="https://media.licdn.com/dms/image/v2/D4D03AQEC69DCIIkfBQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1700038154034?e=1733961600&v=beta&t=OWhxPsXrtwd8658lrZKp4Nd5b9esgT8H8qorLeuStZw"
+                src="https://i.pinimg.com/236x/85/59/09/855909df65727e5c7ba5e11a8c45849a.jpg"
               />
               <div className="text-center sm:text-left -mt-8 sm:mt-0">
                 <Title level={2} className="!mb-0">{userDetails?.name}</Title>
@@ -253,59 +253,7 @@ export default function DriverProfile() {
               defaultActiveKey="1"
               className="full-width-tabs"
               items={[
-                {
-                  key: '1',
-                  label: (
-                    <span className="flex items-center px-2">
-                      <UserOutlined className="mr-2" />
-                      <span className="hidden sm:inline">Profile</span>
-                    </span>
-                  ),
-                  children: (
-                    <Form onFinish={onFinish} layout="vertical" className="max-w-4xl">
-                      <Row gutter={[24, 16]}>
-                        <Col xs={24} sm={12}>
-                          <Form.Item
-                            label="Phone Number"
-                            name="phoneNumber"
-                            rules={[{ required: true, message: 'Please input your phone number!' }]}
-                          >
-                            <Input size="large" placeholder="Enter your phone number" />
-                          </Form.Item>
-                        </Col>
-                        <Col xs={24} sm={12}>
-                          <Form.Item
-                            label="Date of Birth"
-                            name="dob"
-                            rules={[{ required: true, message: 'Please input your date of birth!' }]}
-                          >
-                            <Input size="large" type="date" />
-                          </Form.Item>
-                        </Col>
-                        <Col xs={24}>
-                          <Form.Item
-                            label="Address"
-                            name="address"
-                            rules={[{ required: true, message: 'Please input your address!' }]}
-                          >
-                            <Input.TextArea
-                              rows={3}
-                              size="large"
-                              placeholder="Enter your complete address"
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col xs={24}>
-                          <Form.Item>
-                            <Button type="primary" size="large" htmlType="submit">
-                              Update Profile
-                            </Button>
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                    </Form>
-                  ),
-                },
+              
                 {
                   key: '2',
                   label: (
