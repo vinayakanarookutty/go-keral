@@ -253,7 +253,56 @@ export default function DriverProfile() {
               defaultActiveKey="1"
               className="full-width-tabs"
               items={[
-              
+                {
+                  key: '1',
+                  label: (
+                    <span className="flex items-center px-2">
+                      <UserOutlined className="mr-2" />
+                      <span className="hidden sm:inline">Bookings</span>
+                    </span>
+                  ),
+                  children: (
+                    <div>
+                      <div className="mb-6">
+                        <Button
+                          type="primary"
+                          icon={<PlusOutlined />}
+                          onClick={showModal}
+                          size="large"
+                        >
+                          Add Vehicle
+                        </Button>
+                      </div>
+                      <Table
+  columns={columns}
+  dataSource={vehicles || []} // Default to empty array
+  scroll={{ x: true }}
+  className="custom-table"
+  pagination={{
+    responsive: true,
+    defaultPageSize: 5,
+    showSizeChanger: true,
+    showTotal: (total, range) =>
+      `${range[0]}-${range[1]} of ${total} items`,
+  }}
+  loading={loading}
+  rowKey="_id"
+/>
+{pdfFile && (
+        <div style={{ marginTop: 20 }}>
+          <h3>PDF Preview</h3>
+          <div style={{ height: '750px' }}>
+          {/* <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.15.349/build/pdf.worker.min.js">
+  <Viewer fileUrl={pdfFile} />
+</Worker> */}
+  <PdfComp pdfFile={pdfFile}/>
+  
+          </div>
+        </div>
+      )}
+                    </div>
+                  ),
+                },
                 {
                   key: '2',
                   label: (
