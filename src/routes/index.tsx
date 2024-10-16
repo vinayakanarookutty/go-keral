@@ -14,6 +14,7 @@ import BookingConfirmation from "../pages/bookingConfirmation";
 import BookingsPage from "../pages/bookings";
 import UserLogin from "../pages/userLogin";
 import UserSignUp from "../pages/userSignUp";
+import UserProfile from "../pages/userProfile";
 
 // import { routePaths } from '../config'
 // import Maps from '../maps'
@@ -45,10 +46,6 @@ export const router = createBrowserRouter([
         path: routePaths.driverRegistration,
         element: <DriverRegistrationPage />,
     },
-    // {
-    //     path:routePaths.userLogin,
-    //     element: <UserLogin/>
-    // },
     {
         path: routePaths.driverRegistration,
         element: <DriverRegistrationPage />,
@@ -93,6 +90,10 @@ export const router = createBrowserRouter([
     {
         path: routePaths.userRegistration,
         element: <UserSignUp />,
+    },
+    {
+        path: routePaths.userprofile,
+        element: <UserProfile />,
     },
     {
         path: "*",
