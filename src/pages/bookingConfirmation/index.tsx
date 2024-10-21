@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Typography, Avatar, Spin, Rate, message, Input, Modal, Card } from 'antd';
 import { UserOutlined, SearchOutlined, CarOutlined } from '@ant-design/icons';
 import axios from 'axios';
-
+import { Form, DatePicker, Select, Button, InputNumber,  } from 'antd'
 const { Title, Text } = Typography;
 
 const BookingConfirmation = () => {
@@ -23,6 +23,8 @@ const BookingConfirmation = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [vehicles, setVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     fetchDriverDetails();
@@ -59,6 +61,7 @@ const BookingConfirmation = () => {
 
   const handleVehicleSelect = (vehicle) => {
     setSelectedVehicle(vehicle);
+    setIsModalOpen(true);
   };
 
   const handleModalClose = () => {
@@ -107,156 +110,241 @@ const BookingConfirmation = () => {
     vehicle.make.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const onFinish = async (values: any) => {
+    try {
+      values.customerName="Vinayak"
+      const response = await axios.post('http://localhost:3000/quatation', values);
+      if (response.status === 201) {
+        message.success('Quotation submitted successfully!');
+        navigate('/quatationsuccess');
+        form.resetFields(); // Reset form after submission
+      } else {
+        message.error('Failed to submit the quotation.');
+      }
+    } catch (error) {
+      message.error('An error occurred while submitting the quotation.');
+      console.error(error);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-gray-100">
-      <div className="container mx-auto px-4 py-8">
-        <Card className="mb-8 shadow-lg hover:shadow-xl transition-shadow duration-300" 
-              hoverable
-              style={{ background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(10px)' }}>
-          <Title level={2} className="text-center text-green-800 mb-4">Trip Details</Title>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="text-center">
-              <Text strong className="text-lg">Origin:</Text>
-              <p className="text-xl text-green-600">{bookingDetails.origin}</p>
+    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50">
+    <div className="container mx-auto px-4 py-12">
+      <Card className="mb-10 shadow-lg hover:shadow-xl transition-shadow duration-300" 
+            hoverable
+            style={{ background: 'white', borderRadius: '16px' }}>
+        <Title level={2} className="text-center text-gray-800 mb-6 font-light">Trip Details</Title>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {['Origin', 'Destination', 'Distance', 'Duration'].map((item, index) => (
+            <div key={index} className="text-center">
+              <Text strong className="text-lg text-gray-600">{item}:</Text>
+              <p className="text-xl text-gray-800 mt-2">
+                {item === 'Distance' ? `${bookingDetails[item.toLowerCase()]} km` :
+                 item === 'Duration' ? `${bookingDetails[item.toLowerCase()]} minutes` :
+                 bookingDetails[item.toLowerCase()]}
+              </p>
             </div>
-            <div className="text-center">
-              <Text strong className="text-lg">Destination:</Text>
-              <p className="text-xl text-green-600">{bookingDetails.destination}</p>
-            </div>
-            <div className="text-center">
-              <Text strong className="text-lg">Distance:</Text>
-              <p className="text-xl text-green-600">{bookingDetails.distance} km</p>
-            </div>
-            <div className="text-center">
-              <Text strong className="text-lg">Duration:</Text>
-              <p className="text-xl text-green-600">{bookingDetails.duration} minutes</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="mb-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
-              hoverable
-              style={{ background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(10px)' }}>
-          <Title level={2} className="text-center text-green-800 mb-4">Select a Driver</Title>
-          <Input
-            prefix={<SearchOutlined className="text-gray-400" />}
-            placeholder="Search drivers by name"
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="mb-6 rounded-full"
-          />
-
-          {loading ? (
-            <div className="text-center">
-              <Spin size="large" />
-            </div>
-          ) : filteredDrivers.length === 0 ? (
-            <div className="text-center">
-              <Text>No drivers found</Text>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {filteredDrivers.map((driver) => (
-                <Card
-                  key={driver.id}
-                  hoverable
-                  className={`text-center transition-all duration-300 transform hover:scale-105 ${
-                    selectedDriver?.id === driver.id ? 'border-green-500 border-2' : ''
-                  }`}
-                  onClick={() => handleDriverSelect(driver)}
-                >
-                  <Avatar size={80} icon={<UserOutlined />} src={driver.imageUrl} className="mb-4" />
-                  <Title level={4}>{driver.name}</Title>
-                  <Rate disabled defaultValue={driver.rating} className="my-2" />
-                  <Text>Experience: {driver.experience} years</Text>
-                </Card>
-              ))}
-            </div>
-          )}
-        </Card>
-
-        <Card className="mb-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
-              hoverable
-              style={{ background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(10px)' }}>
-          <Title level={2} className="text-center text-green-800 mb-4">Select a Vehicle</Title>
-          <Input
-            prefix={<SearchOutlined className="text-gray-400" />}
-            placeholder="Search vehicles by make"
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="mb-6 rounded-full"
-          />
-
-          {loading ? (
-            <div className="text-center">
-              <Spin size="large" />
-            </div>
-          ) : filteredVehicles.length === 0 ? (
-            <div className="text-center">
-              <Text>No vehicles found</Text>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {filteredVehicles.map((vehicle) => (
-                <Card
-                  key={vehicle.id}
-                  hoverable
-                  className={`text-center transition-all duration-300 transform hover:scale-105 ${
-                    selectedVehicle?.id === vehicle.id ? 'border-green-500 border-2' : ''
-                  }`}
-                  onClick={() => handleVehicleSelect(vehicle)}
-                >
-                  <Avatar size={80} icon={<CarOutlined />} src={vehicle.imageUrl} className="mb-4" />
-                  <Title level={4}>{vehicle.make} {vehicle.model}</Title>
-                  <Text>Year: {vehicle.year}</Text>
-                </Card>
-              ))}
-            </div>
-          )}
-        </Card>
-
-        <div className="text-center">
-          <button
-            onClick={confirmBooking}
-            className={`px-8 py-3 rounded-full text-white font-semibold transition-all duration-300 transform hover:scale-105 ${
-              selectedDriver && selectedVehicle
-                ? 'bg-green-600 hover:bg-green-700'
-                : 'bg-gray-400 cursor-not-allowed'
-            }`}
-            disabled={!selectedDriver || !selectedVehicle || loading}
-          >
-            {loading ? 'Processing...' : 'Confirm Booking'}
-          </button>
+          ))}
         </div>
-      </div>
+      </Card>
 
-      <Modal
-        title={<Title level={3} className="text-center text-green-800">Driver Details</Title>}
-        visible={isModalVisible}
-        onCancel={handleModalClose}
-        footer={[
-          <button
-            key="close"
-            onClick={handleModalClose}
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 transition-colors duration-300"
-          >
-            Close
-          </button>,
-        ]}
-        className="rounded-2xl overflow-hidden"
-        bodyStyle={{ background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)' }}
-      >
-        {selectedDriver && (
-          <div className="flex flex-col items-center">
-            <Avatar size={120} icon={<UserOutlined />} src={selectedDriver.imageUrl} className="mb-4" />
-            <Title level={3} className="mb-2">{selectedDriver.name}</Title>
-            <Rate disabled defaultValue={selectedDriver.rating} className="mb-4" />
-            <Text className="text-lg mb-2">Experience: {selectedDriver.experience} years</Text>
-            <Text className="text-lg mb-2">Languages: {selectedDriver.languages || 'English, Hindi'}</Text>
-            <Text className="text-lg mb-2">License Type: {selectedDriver.licenseType || 'Commercial'}</Text>
-            <Text className="text-lg">Vehicle: {selectedDriver.vehicle || 'Toyota Innova'}</Text>
+      <Card className="mb-10 shadow-lg hover:shadow-xl transition-shadow duration-300"
+            hoverable
+            style={{ background: 'white', borderRadius: '16px' }}>
+        <Title level={2} className="text-center text-gray-800 mb-6 font-light">Select a Driver</Title>
+        <Input
+          prefix={<SearchOutlined className="text-gray-400" />}
+          placeholder="Search drivers by name"
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="mb-8 rounded-full"
+          size="large"
+        />
+
+        {loading ? (
+          <div className="text-center py-8">
+            <Spin size="large" />
+          </div>
+        ) : filteredDrivers.length === 0 ? (
+          <div className="text-center py-8">
+            <Text className="text-gray-600">No drivers found</Text>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+            {filteredDrivers.map((driver) => (
+              <Card
+                key={driver.id}
+                hoverable
+                className={`text-center transition-all duration-300 transform hover:scale-105 ${
+                  selectedDriver?.id === driver.id ? 'border-blue-500 border-2' : ''
+                }`}
+                onClick={() => handleDriverSelect(driver)}
+                style={{ borderRadius: '12px' }}
+              >
+                <Avatar size={100} icon={<UserOutlined />} src={driver.imageUrl} className="mb-4" />
+                <Title level={4} className="mb-2">{driver.name}</Title>
+                <Rate disabled defaultValue={driver.rating} className="mb-2" />
+                <Text className="text-gray-600">Experience: {driver.experience} years</Text>
+              </Card>
+            ))}
           </div>
         )}
-      </Modal>
+      </Card>
+
+      <Card className="mb-10 shadow-lg hover:shadow-xl transition-shadow duration-300"
+            hoverable
+            style={{ background: 'white', borderRadius: '16px' }}>
+        <Title level={2} className="text-center text-gray-800 mb-6 font-light">Select a Vehicle</Title>
+        <Input
+          prefix={<SearchOutlined className="text-gray-400" />}
+          placeholder="Search vehicles by make"
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="mb-8 rounded-full"
+          size="large"
+        />
+
+        {loading ? (
+          <div className="text-center py-8">
+            <Spin size="large" />
+          </div>
+        ) : filteredVehicles.length === 0 ? (
+          <div className="text-center py-8">
+            <Text className="text-gray-600">No vehicles found</Text>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+            {filteredVehicles.map((vehicle) => (
+              <Card
+                key={vehicle.id}
+                hoverable
+                className={`text-center transition-all duration-300 transform hover:scale-105 ${
+                  selectedVehicle?.id === vehicle.id ? 'border-blue-500 border-2' : ''
+                }`}
+                onClick={() => handleVehicleSelect(vehicle)}
+                style={{ borderRadius: '12px' }}
+              >
+                <Avatar size={100} icon={<CarOutlined />} src={vehicle.imageUrl} className="mb-4" />
+                <Title level={4} className="mb-2">{vehicle.make} {vehicle.model}</Title>
+                <Text className="text-gray-600">Year: {vehicle.year}</Text>
+              </Card>
+            ))}
+          </div>
+        )}
+      </Card>
+
+      <div className="text-center">
+        <button
+          onClick={confirmBooking}
+          className={`px-10 py-4 rounded-full text-white font-semibold transition-all duration-300 transform hover:scale-105 ${
+            selectedDriver && selectedVehicle
+              ? 'bg-blue-600 hover:bg-blue-700'
+              : 'bg-gray-400 cursor-not-allowed'
+          }`}
+          disabled={!selectedDriver || !selectedVehicle || loading}
+        >
+          {loading ? 'Processing...' : 'Confirm Booking'}
+        </button>
+      </div>
     </div>
+
+    <Modal
+      title={<Title level={3} className="text-center text-gray-800">Driver Details</Title>}
+      visible={isModalVisible}
+      onCancel={handleModalClose}
+      footer={[
+        <button
+          key="close"
+          onClick={handleModalClose}
+          className="px-6 py-2 bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 transition-colors duration-300"
+        >
+          Close
+        </button>,
+      ]}
+      className="rounded-2xl overflow-hidden"
+      bodyStyle={{ background: 'white' }}
+    >
+      {selectedDriver && (
+        <div className="flex flex-col items-center">
+          <Avatar size={140} icon={<UserOutlined />} src={selectedDriver.imageUrl} className="mb-6" />
+          <Title level={3} className="mb-3">{selectedDriver.name}</Title>
+          <Rate disabled defaultValue={selectedDriver.rating} className="mb-4" />
+          <Text className="text-lg mb-2">Experience: {selectedDriver.experience} years</Text>
+          <Text className="text-lg mb-2">Languages: {selectedDriver.languages || 'English, Hindi'}</Text>
+          <Text className="text-lg mb-2">License Type: {selectedDriver.licenseType || 'Commercial'}</Text>
+          <Text className="text-lg">Vehicle: {selectedDriver.vehicle || 'Toyota Innova'}</Text>
+        </div>
+      )}
+    </Modal>
+
+    <Modal
+      title={<Title level={3} className="text-center text-gray-800">Give Quotation</Title>}
+      open={isModalOpen}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      footer={null}
+      centered
+      className="quotation-modal rounded-2xl overflow-hidden"
+    >
+      <div className="quotation-header mb-6">
+        <Text strong className="text-lg">Vehicle: </Text>
+        <Text className="text-lg">{selectedVehicle?.make} {selectedVehicle?.model}</Text>
+      </div>
+
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        className="quotation-form"
+      >
+        <Form.Item
+          name="bookingDatefrom"
+          label="Booking Date From"
+          rules={[{ required: true, message: 'Please select the booking date' }]}
+        >
+          <DatePicker style={{ width: '100%' }} size="large" />
+        </Form.Item>
+
+        <Form.Item
+          name="bookingDateto"
+          label="Booking Date To"
+          rules={[{ required: true, message: 'Please select the booking date' }]}
+        >
+          <DatePicker style={{ width: '100%' }} size="large" />
+        </Form.Item>
+
+        <Form.Item
+          name="price"
+          label="Price (in INR)"
+          rules={[{ required: true, message: 'Please enter the price' }]}
+        >
+          <InputNumber
+            style={{ width: '100%' }}
+            placeholder="Enter price"
+            min={0}
+            formatter={(value) => `₹ ${value}`}
+            size="large"
+          />
+        </Form.Item>
+
+        <Form.Item name="remarks" label="Remarks">
+          <Input.TextArea placeholder="Additional remarks (optional)" rows={4} />
+        </Form.Item>
+
+        <Form.Item>
+          <Button type="primary" htmlType="submit" block size="large" className="h-12 text-lg font-semibold">
+            Submit Quotation
+          </Button>
+        </Form.Item>
+      </Form>
+    </Modal>
+  </div>
   );
 };
 

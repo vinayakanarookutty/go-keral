@@ -1,9 +1,8 @@
 import React from 'react';
-import { Form, Input, Button, Checkbox, Typography, message } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
+import { Form, Input, Button,  Typography, message } from 'antd';
+import {  LockOutlined, PhoneOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { Car } from 'lucide-react';
-import { useHistory } from "react-router-dom";
+
 const { Title, Text } = Typography;
 
 export function AdminLogin() {

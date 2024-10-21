@@ -11,6 +11,7 @@ export const routePaths = {
     addLocations:"/addLocations",
     bookingconfirmation:"bookingconfirmation",
     bookingsucess:"bookingsucess",
+    quatations:"quatationsuccess",
     driverProfile:"/driverProfile",
     signIn: '/sign-in',
     settings: '/settings',

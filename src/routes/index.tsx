@@ -12,6 +12,7 @@ import AdminProfile from '../pages/adminProfile'
 import DestinationMap from '../pages/addLocations'
 import BookingConfirmation from '../pages/bookingConfirmation'
 import BookingsPage from '../pages/bookings'
+import QuatationsPage from '../pages/quatations'
 
 // import { routePaths } from '../config'
 // import Maps from '../maps'
@@ -83,6 +84,10 @@ export const router = createBrowserRouter([
     {
         path:routePaths.bookingsucess,
         element: <BookingsPage/>
+    },
+    {
+        path:routePaths.quatations,
+        element: <QuatationsPage/>
     },
     {
         path: '*',

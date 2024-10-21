@@ -25,11 +25,12 @@ export default function AdminProfile() {
   const [vehicles, setVehicles] = useState([]);
   const [pdfFile, setPdfFile] = useState(null);
   const [bookings, setBookings] = useState([]);
- 
+  const [quotations, setQuotations] = useState<Quotation[]>([]);
 
   useEffect(() => {
     fetchBookings();
-    fetchVehicles()
+    fetchVehicles();
+    fetchQuotations()
   }, []);
 
   const fetchBookings = async () => {
@@ -70,6 +71,19 @@ export default function AdminProfile() {
       
       // Open the PDF in a new window or tab
       window.open(url, '_blank');
+    }
+  };
+
+  const fetchQuotations = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('http://localhost:3000/quatations');
+      setQuotations(response.data);
+    } catch (error) {
+      console.error('Error fetching quotations:', error);
+      message.error('Failed to fetch quotations');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -229,6 +243,51 @@ const columns = [
       key: 'block' 
     },
   ];
+
+  const columnsQuotation = [
+    {
+      title: 'Sl No',
+      key: 'slNo',
+      render: (text, record, index) => index + 1, // Auto-increment Sl No
+    },
+    {
+      title: 'Customer Name',
+      dataIndex: 'customerName',
+      key: 'customerName',
+    },
+    {
+      title: 'Booking Date From',
+      dataIndex: 'bookingDatefrom',
+      key: 'bookingDatefrom',
+      render: (date) => formatDate(date), // Format date
+    },
+    {
+      title: 'Booking Date To',
+      dataIndex: 'bookingDateto',
+      key: 'bookingDateto',
+      render: (date) => formatDate(date), // Format date
+    },
+    {
+      title: 'Price',
+      dataIndex: 'price',
+      key: 'price',
+    },
+    {
+      title: 'Remarks',
+      dataIndex: 'remarks',
+      key: 'remarks',
+    },
+  ];
+  
+  // Utility function to format date
+  const formatDate = (dateString) => {
+    if (!dateString) return ''; // Handle empty date
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`; // Format as DD-MM-YYYY
+  };
   
   
   const columns2 = [
@@ -440,6 +499,35 @@ const columns = [
         </div>
       )}
                     </div>
+                  ),
+                },
+                {
+                  key: '7',
+                  label: (
+                    <span className="flex items-center px-2">
+                      <CarOutlined className="mr-2" />
+                      <span className="hidden sm:inline">Quatations</span>
+                    </span>
+                  ),
+                  children: (
+                   <>
+                    <h1>Quatations</h1>
+                    <Table
+  columns={columnsQuotation}
+  dataSource={quotations|| []} // Default to empty array
+  scroll={{ x: true }}
+  className="custom-table"
+  pagination={{
+    responsive: true,
+    defaultPageSize: 5,
+    showSizeChanger: true,
+    showTotal: (total, range) =>
+      `${range[0]}-${range[1]} of ${total} items`,
+  }}
+  loading={loading}
+  rowKey="_id"
+/>
+                   </>
                   ),
                 },
               ]}
