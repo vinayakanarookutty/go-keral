@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Map, { Source, Layer, Marker, Popup } from 'react-map-gl';
-import { AutoComplete, List, Radio, Typography, Button, Modal, Form, Input, message } from 'antd';
+import { AutoComplete, List, Radio, Typography, Button, Modal, Form, Input, message,Card } from 'antd';
 import { EnvironmentFilled, EnvironmentTwoTone } from '@ant-design/icons';
 import axios from 'axios';
 import { useUserStore } from '../../store/user';
@@ -141,6 +141,17 @@ const Maps: React.FC = () => {
   const handleRouteSelect = (index: number) => {
     setSelectedRouteIndex(index);
   };
+
+  const PREMIUM_RATE = 20; // ₹10 per km
+  const LUXURY_RATE = 30;  // ₹20 per km
+
+  // Calculate prices based on selected route
+  const calculatePrices = (distance: number) => {
+    const premiumPrice = distance * PREMIUM_RATE;
+    const luxuryPrice = distance * LUXURY_RATE;
+    return { premiumPrice, luxuryPrice };
+  };
+
 
   const handleBookRoute = () => {
     if (selectedRouteIndex !== null) {
@@ -291,6 +302,31 @@ const Maps: React.FC = () => {
                 : 'N/A'}
             </Text>
           </div>
+          {selectedRouteIndex !== null && (
+            <div className="mb-6 space-y-4">
+              <Text className="text-lg font-medium block text-gray-700">Estimated Prices:</Text>
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="bg-blue-50 border-blue-200">
+                  <div className="text-center">
+                    <Text className="text-lg font-semibold text-blue-700 block">Premium</Text>
+                    <Text className="text-2xl font-bold text-blue-900 block">
+                      ₹{(routes[selectedRouteIndex].distance / 1000 * PREMIUM_RATE).toFixed(2)}
+                    </Text>
+                    <Text className="text-sm text-blue-600">(₹{PREMIUM_RATE}/km)</Text>
+                  </div>
+                </Card>
+                <Card className="bg-purple-50 border-purple-200">
+                  <div className="text-center">
+                    <Text className="text-lg font-semibold text-purple-700 block">Luxury</Text>
+                    <Text className="text-2xl font-bold text-purple-900 block">
+                      ₹{(routes[selectedRouteIndex].distance / 1000 * LUXURY_RATE).toFixed(2)}
+                    </Text>
+                    <Text className="text-sm text-purple-600">(₹{LUXURY_RATE}/km)</Text>
+                  </div>
+                </Card>
+              </div>
+            </div>
+          )}
           <Text className="text-lg font-medium mb-2 block text-gray-700">Available Routes:</Text>
           <Radio.Group
             onChange={(e) => handleRouteSelect(e.target.value)}
