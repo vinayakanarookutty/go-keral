@@ -13,6 +13,9 @@ import DestinationMap from '../pages/addLocations'
 import BookingConfirmation from '../pages/bookingConfirmation'
 import BookingsPage from '../pages/bookings'
 import QuatationsPage from '../pages/quatations'
+import UserLogin from "../pages/userLogin";
+import UserSignUp from "../pages/userSignUp";
+import UserProfile from "../pages/userProfile";
 
 // import { routePaths } from '../config'
 // import Maps from '../maps'
@@ -27,63 +30,71 @@ import QuatationsPage from '../pages/quatations'
 export const router = createBrowserRouter([
     {
         path: routePaths.home,
-        element: <HomePage/>,
+        element: <HomePage />,
         // children: [
         //     {
         //         path: getAppRoutePath(APPS.MAPS, 'maps'),
         //         element: <Maps />,
         //     },
-          
+
         // ],
     },
     {
-        path:routePaths.maps,
-        element: <Maps />
+        path: routePaths.maps,
+        element: <Maps />,
     },
     {
-        path:routePaths.driverRegistration,
-        element: <DriverRegistrationPage/>
-    },
-    // {
-    //     path:routePaths.userLogin,
-    //     element: <UserLogin/>
-    // },
-    {
-        path:routePaths.driverRegistration,
-        element: <DriverRegistrationPage/>
+        path: routePaths.driverRegistration,
+        element: <DriverRegistrationPage />,
     },
     {
-        path:routePaths.driverProfile,
-        element: <DriverProfile/>
+        path: routePaths.driverRegistration,
+        element: <DriverRegistrationPage />,
     },
     {
-        path:routePaths.driverLogin,
-        element: <DriverLogin/>
+        path: routePaths.driverProfile,
+        element: <DriverProfile />,
+    },
+    {
+        path: routePaths.driverLogin,
+        element: <DriverLogin />,
     },
 
     {
-        path:routePaths.adminLogin,
-        element: <AdminLogin/>
+        path: routePaths.adminLogin,
+        element: <AdminLogin />,
     },
     {
-        path:routePaths.adminRegistration,
-        element: <AdminRegistrationPage/>
+        path: routePaths.adminRegistration,
+        element: <AdminRegistrationPage />,
     },
     {
-        path:routePaths.adminprofile,
-        element: <AdminProfile/>
+        path: routePaths.adminprofile,
+        element: <AdminProfile />,
     },
     {
-        path:routePaths.addLocations,
-        element: <DestinationMap/>
+        path: routePaths.addLocations,
+        element: <DestinationMap />,
     },
     {
-        path:routePaths.bookingconfirmation,
-        element: <BookingConfirmation/>
+        path: routePaths.bookingconfirmation,
+        element: <BookingConfirmation />,
     },
     {
-        path:routePaths.bookingsucess,
-        element: <BookingsPage/>
+        path: routePaths.bookingsucess,
+        element: <BookingsPage />,
+    },
+    {
+        path: routePaths.userLogin,
+        element: <UserLogin />,
+    },
+    {
+        path: routePaths.userRegistration,
+        element: <UserSignUp />,
+    },
+    {
+        path: routePaths.userprofile,
+        element: <UserProfile />,
     },
     {
         path:routePaths.quatations,
@@ -93,7 +104,7 @@ export const router = createBrowserRouter([
         path: '*',
         element: <NotFound />,
     },
-])
+]);
 if (import.meta.hot) {
-    import.meta.hot.dispose(() => router.dispose())
+    import.meta.hot.dispose(() => router.dispose());
 }

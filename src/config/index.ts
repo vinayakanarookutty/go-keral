@@ -18,9 +18,10 @@ export const routePaths = {
     userRegistration: '/userRegistration',
     driverRegistration: '/driverRegistration',
     verifyEmail: '/verify-email',
+    userprofile: "/user-profile",
     authentication: {
-        index: '/authentication',
-        signIn: '/authentication/sign-in',
-        newPassword: '/authentication/new-password',
+        index: "/authentication",
+        signIn: "/authentication/sign-in",
+        newPassword: "/authentication/new-password",
     },
-}
+};
