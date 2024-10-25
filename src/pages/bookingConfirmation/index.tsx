@@ -15,6 +15,7 @@ const BookingConfirmation = () => {
     distance: 120,
     duration: 180,
   };
+  
 
   const [loading, setLoading] = useState(true);
   const [driverList, setDriverList] = useState([]);
