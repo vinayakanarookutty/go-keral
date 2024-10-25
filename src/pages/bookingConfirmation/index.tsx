@@ -1,351 +1,690 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Typography, Avatar, Spin, Rate, message, Input, Modal, Card } from 'antd';
-import { UserOutlined, SearchOutlined, CarOutlined } from '@ant-design/icons';
-import axios from 'axios';
-import { Form, DatePicker, Select, Button, InputNumber,  } from 'antd'
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+    Typography,
+    Avatar,
+    Spin,
+    Rate,
+    message,
+    Input,
+    Card,
+    Form,
+    DatePicker,
+    InputNumber,
+    Button,
+    Steps,
+    Tag,
+    Timeline,
+} from "antd";
+import {
+    UserOutlined,
+    SearchOutlined,
+    CarOutlined,
+    EnvironmentOutlined,
+    ClockCircleOutlined,
+    RightOutlined,
+} from "@ant-design/icons";
+import axios from "axios";
+import type { RangePickerProps } from "antd/es/date-picker";
+import dayjs from "dayjs";
+
 const { Title, Text } = Typography;
+const { RangePicker } = DatePicker;
+
+// Interfaces
+interface BookingDetails {
+    origin: string;
+    destination: string;
+    distance: number;
+    duration: number;
+}
+
+interface Driver {
+    id: number;
+    name: string;
+    rating: number;
+    experience: number;
+    imageUrl?: string;
+    languages?: string;
+    licenseType?: string;
+}
+
+interface Vehicle {
+    id: number;
+    make: string;
+    model: string;
+    year: number;
+    imageUrl?: string;
+}
+
+interface BookingFormData {
+    dateRange: [dayjs.Dayjs, dayjs.Dayjs];
+    price: number;
+    remarks?: string;
+}
 
 const BookingConfirmation = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const bookingDetails = location.state || {
-    origin: 'Cochin',
-    destination: 'Munnar',
-    distance: 120,
-    duration: 180,
-  };
+    const location = useLocation();
+    const navigate = useNavigate();
+    const bookingDetails: BookingDetails = location.state || {
+        origin: "Cochin",
+        destination: "Munnar",
+        distance: 120,
+        duration: 180,
+    };
 
-  const [loading, setLoading] = useState(true);
-  const [driverList, setDriverList] = useState([]);
-  const [selectedDriver, setSelectedDriver] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [vehicles, setVehicles] = useState([]);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form] = Form.useForm();
+    const [loading, setLoading] = useState(true);
+    const [driverList, setDriverList] = useState<Driver[]>([]);
+    const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+    const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(
+        null
+    );
+    const [currentStep, setCurrentStep] = useState(0);
+    const [bookingForm] = Form.useForm();
+    const [bookingData, setBookingData] = useState<BookingFormData | null>(
+        null
+    );
 
-  useEffect(() => {
-    fetchDriverDetails();
-    fetchVehicles();
-  }, []);
+    useEffect(() => {
+        fetchDriverDetails();
+        fetchVehicles();
+    }, []);
 
-  const fetchVehicles = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/getvehicles');
-      const data = Array.isArray(response.data) ? response.data : [];
-      setVehicles(data);
-    } catch (error) {
-      console.error('Error fetching vehicles:', error);
-      message.error('Failed to fetch vehicles');
-    }
-  };
+    const fetchVehicles = async () => {
+        try {
+            const response = await axios.get(
+                "http://localhost:3000/getvehicles"
+            );
+            const data = Array.isArray(response.data) ? response.data : [];
+            setVehicles(data);
+        } catch (error) {
+            console.error("Error fetching vehicles:", error);
+            message.error("Failed to fetch vehicles");
+        }
+    };
 
-  const fetchDriverDetails = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/driverList');
-      setDriverList(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      console.error('Error fetching drivers:', error);
-      message.error('Failed to fetch drivers');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchDriverDetails = async () => {
+        try {
+            const response = await axios.get(
+                "http://localhost:3000/driverList"
+            );
+            setDriverList(Array.isArray(response.data) ? response.data : []);
+        } catch (error) {
+            console.error("Error fetching drivers:", error);
+            message.error("Failed to fetch drivers");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const handleDriverSelect = (driver) => {
-    setSelectedDriver(driver);
-    setIsModalVisible(true);
-  };
+    const handleDriverSelect = (driver: Driver) => {
+        setSelectedDriver(driver);
+    };
 
-  const handleVehicleSelect = (vehicle) => {
-    setSelectedVehicle(vehicle);
-    setIsModalOpen(true);
-  };
+    const handleVehicleSelect = (vehicle: Vehicle) => {
+        setSelectedVehicle(vehicle);
+    };
 
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-  };
+    const confirmBooking = async () => {
+        if (!selectedDriver || !selectedVehicle || !bookingData) {
+            message.error("Please complete all booking details");
+            return;
+        }
 
-  const confirmBooking = async () => {
-    if (!selectedDriver || !selectedVehicle) {
-      message.error('Please select both a driver and a vehicle');
-      return;
-    }
-  
-    setLoading(true);
-    try {
-      const bookingData = {
-        ...bookingDetails,
-        driverId: selectedDriver.id,
-        driverName: selectedDriver.name,
-        driverRating: selectedDriver.rating,
-        vehicleId: selectedVehicle.id,
-        vehicleMake: selectedVehicle.make,
-        vehicleModel: selectedVehicle.model,
-      };
-  
-      const response = await axios.post('http://localhost:3000/bookings', bookingData);
-  
-      if (response.status === 201) {
-        message.success('Booking confirmed successfully!');
-        navigate('/bookingsuccess');
-      } else {
-        throw new Error('Booking failed');
-      }
-    } catch (error) {
-      console.error('Error confirming booking:', error);
-      message.error('An error occurred while confirming the booking. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+        setLoading(true);
+        try {
+            const bookingDataToSubmit = {
+                ...bookingDetails,
+                driverId: selectedDriver.id,
+                driverName: selectedDriver.name,
+                driverRating: selectedDriver.rating,
+                vehicleId: selectedVehicle.id,
+                vehicleMake: selectedVehicle.make,
+                vehicleModel: selectedVehicle.model,
+                dateFrom: bookingData.dateRange[0].format("YYYY-MM-DD"),
+                dateTo: bookingData.dateRange[1].format("YYYY-MM-DD"),
+                price: bookingData.price,
+                remarks: bookingData.remarks,
+            };
 
-  const filteredDrivers = driverList.filter((driver) =>
-    driver.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+            const response = await axios.post(
+                "http://localhost:3000/bookings",
+                bookingDataToSubmit
+            );
 
-  const filteredVehicles = vehicles.filter((vehicle) =>
-    vehicle.make.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+            if (response.status === 201) {
+                message.success("Booking confirmed successfully!");
+                setTimeout(() => {
+                    navigate("/");
+                }, 1000);
+            } else {
+                throw new Error("Booking failed");
+            }
+        } catch (error) {
+            console.error("Error confirming booking:", error);
+            message.error(
+                "An error occurred while confirming the booking. Please try again."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
+    const filteredDrivers = driverList.filter((driver) =>
+        driver.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
+    const filteredVehicles = vehicles.filter((vehicle) =>
+        vehicle.make.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-  const onFinish = async (values: any) => {
-    try {
-      values.customerName="Vinayak"
-      const response = await axios.post('http://localhost:3000/quatation', values);
-      if (response.status === 201) {
-        message.success('Quotation submitted successfully!');
-        navigate('/quatationsuccess');
-        form.resetFields(); // Reset form after submission
-      } else {
-        message.error('Failed to submit the quotation.');
-      }
-    } catch (error) {
-      message.error('An error occurred while submitting the quotation.');
-      console.error(error);
-    }
-  };
+    // Date range validation
+    const disabledDate: RangePickerProps["disabledDate"] = (current) => {
+        return current && current < dayjs().startOf("day");
+    };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50">
-    <div className="container mx-auto px-4 py-12">
-      <Card className="mb-10 shadow-lg hover:shadow-xl transition-shadow duration-300" 
-            hoverable
-            style={{ background: 'white', borderRadius: '16px' }}>
-        <Title level={2} className="text-center text-gray-800 mb-6 font-light">Trip Details</Title>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {['Origin', 'Destination', 'Distance', 'Duration'].map((item, index) => (
-            <div key={index} className="text-center">
-              <Text strong className="text-lg text-gray-600">{item}:</Text>
-              <p className="text-xl text-gray-800 mt-2">
-                {item === 'Distance' ? `${bookingDetails[item.toLowerCase()]} km` :
-                 item === 'Duration' ? `${bookingDetails[item.toLowerCase()]} minutes` :
-                 bookingDetails[item.toLowerCase()]}
-              </p>
+    return (
+        <div
+            className="min-h-screen bg-gradient-to-br from-white to-gray-50 p-4 md:p-8"
+            style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+            }}
+        >
+            <div className="max-w-6xl mx-auto" style={{ width: "100%" }}>
+                <Card className="shadow-xl rounded-2xl border-0">
+                    <Steps
+                        current={currentStep}
+                        onChange={setCurrentStep}
+                        items={[
+                            { title: "Trip Details" },
+                            { title: "Select Driver" },
+                            { title: "Select Vehicle" },
+                            { title: "Schedule & Price" },
+                            { title: "Confirm" },
+                        ]}
+                        className="mb-8"
+                    />
+
+                    {/* Trip Details */}
+                    {currentStep === 0 && (
+                        <Card className="rounded-xl shadow-sm bg-white">
+                            <Title level={2} className="text-center mb-8">
+                                Trip Details
+                            </Title>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <Timeline
+                                    items={[
+                                        {
+                                            dot: (
+                                                <EnvironmentOutlined className="text-blue-500" />
+                                            ),
+                                            children: (
+                                                <div>
+                                                    <Text type="secondary">
+                                                        From
+                                                    </Text>
+                                                    <Title level={3}>
+                                                        {bookingDetails.origin}
+                                                    </Title>
+                                                </div>
+                                            ),
+                                        },
+                                        {
+                                            dot: (
+                                                <EnvironmentOutlined className="text-red-500" />
+                                            ),
+                                            children: (
+                                                <div>
+                                                    <Text type="secondary">
+                                                        To
+                                                    </Text>
+                                                    <Title level={3}>
+                                                        {
+                                                            bookingDetails.destination
+                                                        }
+                                                    </Title>
+                                                </div>
+                                            ),
+                                        },
+                                    ]}
+                                />
+                                <Card className="bg-gray-50">
+                                    <div className="space-y-6">
+                                        <div>
+                                            <ClockCircleOutlined className="text-blue-500 text-xl mb-2" />
+                                            <Text
+                                                type="secondary"
+                                                className="block"
+                                            >
+                                                Duration
+                                            </Text>
+                                            <Title level={3}>
+                                                {bookingDetails.duration}{" "}
+                                                minutes
+                                            </Title>
+                                        </div>
+                                        <div>
+                                            <RightOutlined className="text-blue-500 text-xl mb-2" />
+                                            <Text
+                                                type="secondary"
+                                                className="block"
+                                            >
+                                                Distance
+                                            </Text>
+                                            <Title level={3}>
+                                                {bookingDetails.distance} km
+                                            </Title>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </div>
+                        </Card>
+                    )}
+
+                    {/* Driver Selection */}
+                    {currentStep === 1 && (
+                        <div>
+                            <Title level={2} className="text-center mb-8">
+                                Select Your Driver
+                            </Title>
+                            <Input
+                                prefix={
+                                    <SearchOutlined className="text-gray-400" />
+                                }
+                                placeholder="Search drivers by name"
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="mb-8"
+                                size="large"
+                            />
+                            {loading ? (
+                                <div className="text-center py-8">
+                                    <Spin size="large" />
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {filteredDrivers.map((driver) => (
+                                        <Card
+                                            key={driver.id}
+                                            hoverable
+                                            className={`border-2 ${
+                                                selectedDriver?.id === driver.id
+                                                    ? "border-green-500"
+                                                    : "border-blue-500"
+                                            }`}
+                                            style={{ width: 300 }}
+                                            onClick={() =>
+                                                handleDriverSelect(driver)
+                                            }
+                                        >
+                                            <div className="text-center">
+                                                <Avatar
+                                                    size={80}
+                                                    icon={<UserOutlined />}
+                                                    src={driver.imageUrl}
+                                                    className="mb-4"
+                                                />
+                                                <Title level={4}>
+                                                    {driver.name}
+                                                </Title>
+                                                <Rate
+                                                    disabled
+                                                    defaultValue={driver.rating}
+                                                    className="mb-2"
+                                                />
+                                                <p>
+                                                    Language :{" "}
+                                                    {driver.languages ||
+                                                        "Malayalam"}
+                                                </p>
+                                                <p>
+                                                    License Type :{" "}
+                                                    {driver.licenseType ||
+                                                        "Commercial"}
+                                                </p>
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Vehicle Selection */}
+                    {currentStep === 2 && (
+                        <div>
+                            <Title level={2} className="text-center mb-8">
+                                Select Your Vehicle
+                            </Title>
+                            <Input
+                                prefix={
+                                    <SearchOutlined className="text-gray-400" />
+                                }
+                                placeholder="Search vehicles by make"
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="mb-8"
+                                size="large"
+                            />
+                            {loading ? (
+                                <div className="text-center py-8">
+                                    <Spin size="large" />
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {filteredVehicles.map((vehicle) => (
+                                        <Card
+                                            key={vehicle.id}
+                                            style={{ width: 300 }}
+                                            hoverable
+                                            className={`border-2 ${
+                                                selectedVehicle?.id ===
+                                                vehicle.id
+                                                    ? "border-green-500"
+                                                    : "border-blue-500"
+                                            }`}
+                                            onClick={() =>
+                                                handleVehicleSelect(vehicle)
+                                            }
+                                        >
+                                            <div className="text-center">
+                                                <Avatar
+                                                    size={80}
+                                                    icon={<CarOutlined />}
+                                                    src={vehicle.imageUrl}
+                                                    className="mb-4"
+                                                />
+                                                <Title level={4}>
+                                                    {vehicle.make}{" "}
+                                                    {vehicle.model}
+                                                </Title>
+                                                <Tag color="green">
+                                                    {vehicle.year}
+                                                </Tag>
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Schedule & Price */}
+                    {currentStep === 3 && (
+                        <div className="max-w-2xl mx-auto">
+                            <Title level={2} className="text-center mb-8">
+                                Schedule & Price
+                            </Title>
+                            <Form
+                                form={bookingForm}
+                                layout="vertical"
+                                onFinish={(values) => {
+                                    setBookingData(values);
+                                    setCurrentStep(4);
+                                }}
+                            >
+                                <Form.Item
+                                    name="dateRange"
+                                    label="Trip Dates"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message:
+                                                "Please select your trip dates",
+                                        },
+                                    ]}
+                                >
+                                    <RangePicker
+                                        style={{ width: "100%" }}
+                                        size="large"
+                                        disabledDate={disabledDate}
+                                        className="rounded-lg"
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    name="price"
+                                    label="Price (in INR)"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Please enter the price",
+                                        },
+                                    ]}
+                                >
+                                    <InputNumber
+                                        style={{ width: "100%" }}
+                                        placeholder="Enter price"
+                                        min={0}
+                                        formatter={(value) => `₹ ${value}`}
+                                        size="large"
+                                        className="rounded-lg"
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    name="remarks"
+                                    label="Additional Remarks"
+                                >
+                                    <Input.TextArea
+                                        placeholder="Any special requirements or notes..."
+                                        rows={4}
+                                        className="rounded-lg"
+                                    />
+                                </Form.Item>
+
+                                <Form.Item>
+                                    <div className="flex justify-between mt-8">
+                                        <Button
+                                            onClick={() =>
+                                                setCurrentStep(currentStep - 1)
+                                            }
+                                        >
+                                            Previous
+                                        </Button>
+                                        <Button
+                                            type="primary"
+                                            htmlType="submit"
+                                        >
+                                            Next
+                                        </Button>
+                                    </div>
+                                </Form.Item>
+                            </Form>
+                        </div>
+                    )}
+
+                    {/* Confirmation */}
+                    {currentStep === 4 && (
+                        <div className="max-w-2xl mx-auto">
+                            <Title level={2} className="text-center mb-8">
+                                Booking Summary
+                            </Title>
+
+                            <Card className="mb-6 bg-gray-50">
+                                <Title level={4}>Trip Details</Title>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Text type="secondary">From</Text>
+                                        <div className="font-semibold">
+                                            {bookingDetails.origin}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <Text type="secondary">To</Text>
+                                        <div className="font-semibold">
+                                            {bookingDetails.destination}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <Text type="secondary">Distance</Text>
+                                        <div className="font-semibold">
+                                            {bookingDetails.distance} km
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <Text type="secondary">Duration</Text>
+                                        <div className="font-semibold">
+                                            {bookingDetails.duration} minutes
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+
+                            <Card className="mb-6">
+                                <Card className="mt-3">
+                                    <Title level={4}>Selected Driver</Title>
+                                    {selectedDriver ? (
+                                        <div className="flex items-center space-x-4 ">
+                                            <Avatar
+                                                size={60}
+                                                icon={<CarOutlined />}
+                                                src={selectedDriver.imageUrl}
+                                            />
+                                            <div>
+                                                <Title level={5}>
+                                                    {selectedDriver.name}
+                                                </Title>
+
+                                                <p>
+                                                    Language :{" "}
+                                                    {selectedDriver.languages ||
+                                                        "Malayalam"}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <Text type="warning">
+                                            Please select a vehicle
+                                        </Text>
+                                    )}
+                                </Card>
+
+                                <Card className="mt-3">
+                                    <Title level={4}>Selected Vehicle</Title>
+                                    {selectedVehicle ? (
+                                        <div className="flex items-center space-x-4">
+                                            <Avatar
+                                                size={60}
+                                                icon={<CarOutlined />}
+                                                src={selectedVehicle.imageUrl}
+                                            />
+                                            <div>
+                                                <Title level={5}>
+                                                    {selectedVehicle.make}{" "}
+                                                    {selectedVehicle.model}
+                                                </Title>
+                                                <Tag color="green">
+                                                    {selectedVehicle.year}
+                                                </Tag>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <Text type="warning">
+                                            Please select a vehicle
+                                        </Text>
+                                    )}
+                                </Card>
+                            </Card>
+
+                            <Card className="mb-6 bg-gray-50">
+                                <Title level={4}>Booking Details</Title>
+                                {bookingData && (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Text type="secondary">
+                                                Trip Dates
+                                            </Text>
+                                            <div className="font-semibold">
+                                                {bookingData.dateRange[0].format(
+                                                    "MMM DD, YYYY"
+                                                )}{" "}
+                                                -{" "}
+                                                {bookingData.dateRange[1].format(
+                                                    "MMM DD, YYYY"
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <Text type="secondary">Price</Text>
+                                            <div className="font-semibold">
+                                                ₹{" "}
+                                                {bookingData.price.toLocaleString()}
+                                            </div>
+                                        </div>
+                                        {bookingData.remarks && (
+                                            <div>
+                                                <Text type="secondary">
+                                                    Additional Remarks
+                                                </Text>
+                                                <div className="font-semibold">
+                                                    {bookingData.remarks}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Navigation Buttons */}
+                    <div className="flex justify-between mt-8">
+                        {currentStep == 0 || currentStep == 3 ? (
+                            <span> </span>
+                        ) : (
+                            <Button
+                                onClick={() => setCurrentStep(currentStep - 1)}
+                            >
+                                Previous
+                            </Button>
+                        )}
+
+                        {currentStep == 4 ? (
+                            <Button
+                                type="primary"
+                                onClick={confirmBooking}
+                                disabled={
+                                    !selectedDriver ||
+                                    !selectedVehicle ||
+                                    loading
+                                }
+                            >
+                                {loading ? "Processing..." : "Confirm Booking"}
+                            </Button>
+                        ) : currentStep == 3 ? (
+                            <span></span>
+                        ) : (
+                            <Button
+                                type="primary"
+                                onClick={() => setCurrentStep(currentStep + 1)}
+                                disabled={
+                                    (currentStep === 1 && !selectedDriver) ||
+                                    (currentStep === 2 && !selectedVehicle)
+                                }
+                            >
+                                Next
+                            </Button>
+                        )}
+                    </div>
+                </Card>
+
+                {/* Loading Overlay */}
+                {loading && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white p-8 rounded-xl shadow-xl text-center">
+                            <Spin size="large" />
+                            <Title level={4} className="mt-4 mb-0">
+                                Processing your request...
+                            </Title>
+                        </div>
+                    </div>
+                )}
             </div>
-          ))}
         </div>
-      </Card>
-
-      <Card className="mb-10 shadow-lg hover:shadow-xl transition-shadow duration-300"
-            hoverable
-            style={{ background: 'white', borderRadius: '16px' }}>
-        <Title level={2} className="text-center text-gray-800 mb-6 font-light">Select a Driver</Title>
-        <Input
-          prefix={<SearchOutlined className="text-gray-400" />}
-          placeholder="Search drivers by name"
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="mb-8 rounded-full"
-          size="large"
-        />
-
-        {loading ? (
-          <div className="text-center py-8">
-            <Spin size="large" />
-          </div>
-        ) : filteredDrivers.length === 0 ? (
-          <div className="text-center py-8">
-            <Text className="text-gray-600">No drivers found</Text>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-            {filteredDrivers.map((driver) => (
-              <Card
-                key={driver.id}
-                hoverable
-                className={`text-center transition-all duration-300 transform hover:scale-105 ${
-                  selectedDriver?.id === driver.id ? 'border-blue-500 border-2' : ''
-                }`}
-                onClick={() => handleDriverSelect(driver)}
-                style={{ borderRadius: '12px' }}
-              >
-                <Avatar size={100} icon={<UserOutlined />} src={driver.imageUrl} className="mb-4" />
-                <Title level={4} className="mb-2">{driver.name}</Title>
-                <Rate disabled defaultValue={driver.rating} className="mb-2" />
-                <Text className="text-gray-600">Experience: {driver.experience} years</Text>
-              </Card>
-            ))}
-          </div>
-        )}
-      </Card>
-
-      <Card className="mb-10 shadow-lg hover:shadow-xl transition-shadow duration-300"
-            hoverable
-            style={{ background: 'white', borderRadius: '16px' }}>
-        <Title level={2} className="text-center text-gray-800 mb-6 font-light">Select a Vehicle</Title>
-        <Input
-          prefix={<SearchOutlined className="text-gray-400" />}
-          placeholder="Search vehicles by make"
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="mb-8 rounded-full"
-          size="large"
-        />
-
-        {loading ? (
-          <div className="text-center py-8">
-            <Spin size="large" />
-          </div>
-        ) : filteredVehicles.length === 0 ? (
-          <div className="text-center py-8">
-            <Text className="text-gray-600">No vehicles found</Text>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-            {filteredVehicles.map((vehicle) => (
-              <Card
-                key={vehicle.id}
-                hoverable
-                className={`text-center transition-all duration-300 transform hover:scale-105 ${
-                  selectedVehicle?.id === vehicle.id ? 'border-blue-500 border-2' : ''
-                }`}
-                onClick={() => handleVehicleSelect(vehicle)}
-                style={{ borderRadius: '12px' }}
-              >
-                <Avatar size={100} icon={<CarOutlined />} src={vehicle.imageUrl} className="mb-4" />
-                <Title level={4} className="mb-2">{vehicle.make} {vehicle.model}</Title>
-                <Text className="text-gray-600">Year: {vehicle.year}</Text>
-              </Card>
-            ))}
-          </div>
-        )}
-      </Card>
-
-      <div className="text-center">
-        <button
-          onClick={confirmBooking}
-          className={`px-10 py-4 rounded-full text-white font-semibold transition-all duration-300 transform hover:scale-105 ${
-            selectedDriver && selectedVehicle
-              ? 'bg-blue-600 hover:bg-blue-700'
-              : 'bg-gray-400 cursor-not-allowed'
-          }`}
-          disabled={!selectedDriver || !selectedVehicle || loading}
-        >
-          {loading ? 'Processing...' : 'Confirm Booking'}
-        </button>
-      </div>
-    </div>
-
-    <Modal
-      title={<Title level={3} className="text-center text-gray-800">Driver Details</Title>}
-      visible={isModalVisible}
-      onCancel={handleModalClose}
-      footer={[
-        <button
-          key="close"
-          onClick={handleModalClose}
-          className="px-6 py-2 bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 transition-colors duration-300"
-        >
-          Close
-        </button>,
-      ]}
-      className="rounded-2xl overflow-hidden"
-      bodyStyle={{ background: 'white' }}
-    >
-      {selectedDriver && (
-        <div className="flex flex-col items-center">
-          <Avatar size={140} icon={<UserOutlined />} src={selectedDriver.imageUrl} className="mb-6" />
-          <Title level={3} className="mb-3">{selectedDriver.name}</Title>
-          <Rate disabled defaultValue={selectedDriver.rating} className="mb-4" />
-          <Text className="text-lg mb-2">Experience: {selectedDriver.experience} years</Text>
-          <Text className="text-lg mb-2">Languages: {selectedDriver.languages || 'English, Hindi'}</Text>
-          <Text className="text-lg mb-2">License Type: {selectedDriver.licenseType || 'Commercial'}</Text>
-          <Text className="text-lg">Vehicle: {selectedDriver.vehicle || 'Toyota Innova'}</Text>
-        </div>
-      )}
-    </Modal>
-
-    <Modal
-      title={<Title level={3} className="text-center text-gray-800">Give Quotation</Title>}
-      open={isModalOpen}
-      onOk={handleOk}
-      onCancel={handleCancel}
-      footer={null}
-      centered
-      className="quotation-modal rounded-2xl overflow-hidden"
-    >
-      <div className="quotation-header mb-6">
-        <Text strong className="text-lg">Vehicle: </Text>
-        <Text className="text-lg">{selectedVehicle?.make} {selectedVehicle?.model}</Text>
-      </div>
-
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        className="quotation-form"
-      >
-        <Form.Item
-          name="bookingDatefrom"
-          label="Booking Date From"
-          rules={[{ required: true, message: 'Please select the booking date' }]}
-        >
-          <DatePicker style={{ width: '100%' }} size="large" />
-        </Form.Item>
-
-        <Form.Item
-          name="bookingDateto"
-          label="Booking Date To"
-          rules={[{ required: true, message: 'Please select the booking date' }]}
-        >
-          <DatePicker style={{ width: '100%' }} size="large" />
-        </Form.Item>
-
-        <Form.Item
-          name="price"
-          label="Price (in INR)"
-          rules={[{ required: true, message: 'Please enter the price' }]}
-        >
-          <InputNumber
-            style={{ width: '100%' }}
-            placeholder="Enter price"
-            min={0}
-            formatter={(value) => `₹ ${value}`}
-            size="large"
-          />
-        </Form.Item>
-
-        <Form.Item name="remarks" label="Remarks">
-          <Input.TextArea placeholder="Additional remarks (optional)" rows={4} />
-        </Form.Item>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit" block size="large" className="h-12 text-lg font-semibold">
-            Submit Quotation
-          </Button>
-        </Form.Item>
-      </Form>
-    </Modal>
-  </div>
-  );
+    );
 };
 
 export default BookingConfirmation;
