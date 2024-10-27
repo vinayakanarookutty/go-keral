@@ -16,6 +16,7 @@ import QuatationsPage from '../pages/quatations'
 import UserLogin from "../pages/userLogin";
 import UserSignUp from "../pages/userSignUp";
 import UserProfile from "../pages/userProfile";
+import Quatation from '../pages/quatationConfirmation'
 
 // import { routePaths } from '../config'
 // import Maps from '../maps'
@@ -95,6 +96,10 @@ export const router = createBrowserRouter([
     {
         path: routePaths.userprofile,
         element: <UserProfile />,
+    },
+    {
+        path: routePaths.quatation,
+        element: <Quatation/>,
     },
     {
         path:routePaths.quatations,

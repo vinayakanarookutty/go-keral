@@ -19,6 +19,7 @@ export const routePaths = {
     driverRegistration: '/driverRegistration',
     verifyEmail: '/verify-email',
     userprofile: "/user-profile",
+    quatation:'/quatation',
     authentication: {
         index: "/authentication",
         signIn: "/authentication/sign-in",

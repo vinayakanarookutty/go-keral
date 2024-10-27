@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Map, { Source, Layer, Marker, Popup } from 'react-map-gl';
-import { AutoComplete, List, Radio, Typography, Button, Modal, Form, Input, message,Card } from 'antd';
-import { EnvironmentFilled, EnvironmentTwoTone } from '@ant-design/icons';
+import { AutoComplete,  Radio, Typography, Button, Modal, Form,  message,Card,Checkbox,Select } from 'antd';
+import { EnvironmentFilled, } from '@ant-design/icons';
 import axios from 'axios';
 import { useUserStore } from '../../store/user';
 import { useNavigate } from 'react-router-dom';
-
+import { Users, Car,  } from 'lucide-react';
+import { InputNumber } from 'antd';
+import { UserOutlined, } from '@ant-design/icons';
 const { Option } = AutoComplete;
-const { Text } = Typography;
-
+const { Text, Title } = Typography;
 interface PlaceOption {
   value: string;
   coordinates: [number, number];
@@ -142,32 +143,158 @@ const Maps: React.FC = () => {
     setSelectedRouteIndex(index);
   };
 
-  const PREMIUM_RATE = 20; // ₹10 per km
-  const LUXURY_RATE = 30;  // ₹20 per km
-
-  // Calculate prices based on selected route
-  const calculatePrices = (distance: number) => {
-    const premiumPrice = distance * PREMIUM_RATE;
-    const luxuryPrice = distance * LUXURY_RATE;
-    return { premiumPrice, luxuryPrice };
+  const PRICING = {
+    premium: {
+      baseFare: 200,        // Base fare for first 5 km
+      baseDistance: 5,      // Distance covered in base fare (km)
+      ratePerKm: 20,       // Rate per km after base distance
+    },
+    luxury: {
+      baseFare: 300,        // Base fare for first 5 km
+      baseDistance: 5,      // Distance covered in base fare (km)
+      ratePerKm: 30,       // Rate per km after base distance
+    }
   };
 
+  // Calculate prices based on selected route
+  const calculatePrice = (distance: number, category: 'premium' | 'luxury') => {
+    const pricing = PRICING[category];
+    
+    // If distance is less than or equal to base distance, return base fare
+    if (distance <= pricing.baseDistance) {
+      return pricing.baseFare;
+    }
+    
+    // Calculate additional distance beyond base distance
+    const additionalDistance = distance - pricing.baseDistance;
+    
+    // Calculate total fare: base fare + (additional distance × rate per km)
+    return pricing.baseFare + (additionalDistance * pricing.ratePerKm);
+  };
+
+
+ 
+  const [isPassengerModalVisible, setIsPassengerModalVisible] = useState(false);
+  const [passengers, setPassengers] = useState(1);
+  const [modalAnimationKey, setModalAnimationKey] = useState(0);
+
+
+  const handlePassengerChange = (value: number | null) => {
+    if (value) {
+      setPassengers(value);
+      setModalAnimationKey(prev => prev + 1);
+    }
+  };
+
+  const showPassengerModal = () => {
+    if (selectedRouteIndex === null) {
+      message.warning('Please select a route first');
+      return;
+    }
+    setIsPassengerModalVisible(true);
+  };
+  const [serviceType, setServiceType] = useState(null);
+  const handleServiceTypeChange = (e) => {
+    setServiceType(e.target.checked ? e.target.value : null);
+  };
+  const handleModalOk = () => {
+    const selectedRoute = routes[selectedRouteIndex!];
+    const distance = selectedRoute.distance / 1000;
+    const premiumPrice = calculatePrice(distance, 'premium');
+    const luxuryPrice = calculatePrice(distance, 'luxury');
+    
+    const bookingDetails = {
+      origin,
+      destination,
+      distance: distance.toFixed(2),
+      duration: (selectedRoute.duration / 60).toFixed(2),
+      routeIndex: selectedRouteIndex,
+      originCoords,
+      destCoords,
+      premiumPrice,
+      luxuryPrice,
+      passengers,
+      serviceType
+    };
+    console.log(bookingDetails)
+    if(passengers<25){
+      navigate('/bookingconfirmation', { state: bookingDetails });
+    }
+    else{
+      navigate('/quatation',{ state: bookingDetails })
+    }
+    
+  };
+
+
+
+
+  const VehicleAnimation = ({ passengers }: { passengers: number }) => {
+    const getVehicleSize = () => {
+      if (passengers <= 2) return { width: 48, height: 48 };
+      if (passengers <= 4) return { width: 64, height: 64 };
+      return { width: 80, height: 80 };
+    };
+
+    return (
+      <div className="flex justify-center my-4">
+        <Car
+          {...getVehicleSize()}
+          className="animate-pulse"
+          style={{
+            color: passengers <= 4 ? '#1890ff' : '#f5222d',
+            transition: 'all 0.3s ease'
+          }}
+        />
+      </div>
+    );
+  };
+  const PassengerAnimation = ({ count }: { count: number }) => {
+    const getPassengerColor = (index: number) => {
+      const colors = ['#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1'];
+      return colors[index % colors.length];
+    };
+
+
+    return (
+      <div className="flex flex-wrap justify-center gap-4 p-4 transition-all duration-500">
+        {[...Array(count)].map((_, index) => (
+          <Users
+            key={index}
+            size={48}
+            className="animate-bounce"
+            style={{
+              color: getPassengerColor(index),
+              animationDelay: `${index * 0.2}s`,
+              animationDuration: '1s'
+            }}
+          />
+        ))}
+      </div>
+    );
+  };
 
   const handleBookRoute = () => {
     if (selectedRouteIndex !== null) {
       const selectedRoute = routes[selectedRouteIndex];
-      const bookingDetails = {
-        origin,
-        destination,
-        distance: (selectedRoute.distance / 1000).toFixed(2),
-        duration: (selectedRoute.duration / 60).toFixed(2),
-        routeIndex: selectedRouteIndex,
-        originCoords,
-        destCoords,
-      };
-      console.log(bookingDetails);
+      const distance = selectedRoute.distance / 1000; // Convert to kilometers
+      const premiumPrice = calculatePrice(distance, 'premium');
+      const luxuryPrice = calculatePrice(distance, 'luxury');
+      showPassengerModal()
+      // const bookingDetails = {
+      //   origin,
+      //   destination,
+      //   distance: distance.toFixed(2),
+      //   duration: (selectedRoute.duration / 60).toFixed(2),
+      //   routeIndex: selectedRouteIndex,
+      //   originCoords,
+      //   destCoords,
+      //   premiumPrice,
+      //   luxuryPrice
+      // };
+      // console.log(bookingDetails);
 
-      navigate('/bookingconfirmation', { state: bookingDetails });
+      // navigate('/bookingconfirmation', { state: bookingDetails });
     } else {
       message.warning('Please select a route before booking.');
     }
@@ -310,18 +437,24 @@ const Maps: React.FC = () => {
                   <div className="text-center">
                     <Text className="text-lg font-semibold text-blue-700 block">Premium</Text>
                     <Text className="text-2xl font-bold text-blue-900 block">
-                      ₹{(routes[selectedRouteIndex].distance / 1000 * PREMIUM_RATE).toFixed(2)}
+                      ₹{calculatePrice(routes[selectedRouteIndex].distance / 1000, 'premium').toFixed(2)}
                     </Text>
-                    <Text className="text-sm text-blue-600">(₹{PREMIUM_RATE}/km)</Text>
+                    <div className="text-sm text-blue-600 mt-2">
+                      <div>First {PRICING.premium.baseDistance}km: ₹{PRICING.premium.baseFare}</div>
+                      <div>After {PRICING.premium.baseDistance}km: ₹{PRICING.premium.ratePerKm}/km</div>
+                    </div>
                   </div>
                 </Card>
                 <Card className="bg-purple-50 border-purple-200">
                   <div className="text-center">
                     <Text className="text-lg font-semibold text-purple-700 block">Luxury</Text>
                     <Text className="text-2xl font-bold text-purple-900 block">
-                      ₹{(routes[selectedRouteIndex].distance / 1000 * LUXURY_RATE).toFixed(2)}
+                      ₹{calculatePrice(routes[selectedRouteIndex].distance / 1000, 'luxury').toFixed(2)}
                     </Text>
-                    <Text className="text-sm text-purple-600">(₹{LUXURY_RATE}/km)</Text>
+                    <div className="text-sm text-purple-600 mt-2">
+                      <div>First {PRICING.luxury.baseDistance}km: ₹{PRICING.luxury.baseFare}</div>
+                      <div>After {PRICING.luxury.baseDistance}km: ₹{PRICING.luxury.ratePerKm}/km</div>
+                    </div>
                   </div>
                 </Card>
               </div>
@@ -357,6 +490,50 @@ const Maps: React.FC = () => {
           </Button>
         </div>
       </div>
+      <Modal
+      title={
+        <div className="text-center">
+          <Title level={4}>Select Number of Passengers</Title>
+        </div>
+      }
+      open={isPassengerModalVisible}
+      onOk={handleModalOk}
+      onCancel={() => setIsPassengerModalVisible(false)}
+      width={600}
+      className="animated-modal"
+    >
+      <div className="flex justify-center mb-4">
+        <Checkbox
+          value="Luxury"
+          checked={serviceType === "Luxury"}
+          onChange={handleServiceTypeChange}
+        >
+          Luxury
+        </Checkbox>
+        <Checkbox
+          value="Premium"
+          checked={serviceType === "Premium"}
+          onChange={handleServiceTypeChange}
+        >
+          Premium
+        </Checkbox>
+      </div>
+      <div className="flex justify-center">
+        <Select
+          placeholder="Select number of passengers"
+          onChange={setPassengers}
+          style={{ width: 200 }}
+          value={passengers}
+        >
+          {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => (
+            <Option key={num} value={num}>
+              {num}
+            </Option>
+          ))}
+        </Select>
+      </div>
+    </Modal>
+
     </div>
   );
 };
