@@ -1,26 +1,20 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Input, Select, DatePicker, Card, Row, Col, Tag, Typography } from 'antd';
-import dayjs from 'dayjs'; // Import dayjs for date handling
+import dayjs from 'dayjs';
 
 const { Option } = Select;
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
-function DriverPersonalModal() {
+function DriverPersonalModal({ email, personalInfo }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [driverInfo, setDriverInfo] = useState({
-    dob: dayjs('1990-05-15'), // Use dayjs for initial date
-    address: '123 Main St, City, Country',
-    languages: ['English', 'Spanish', 'Custom Language'],
-    area: 'Downtown',
-    certifications: ['Defensive Driving Certified', 'Custom Certification'],
-    emergencyContact: 'Jane Doe - 987-654-3210'
-  });
+  const [driverInfo, setDriverInfo] = useState(personalInfo);
 
   const showModal = () => {
+    // Populate the form with the existing personalInfo data
     form.setFieldsValue({
-      ...driverInfo,
-      dob: driverInfo.dob // DatePicker will handle dayjs object
+      ...personalInfo,
+      dob: dayjs(personalInfo.dob) // Set dob as a dayjs object for DatePicker
     });
     setIsModalVisible(true);
   };
@@ -32,30 +26,23 @@ function DriverPersonalModal() {
   const handleFinish = (values) => {
     const formattedValues = {
       ...values,
-      dob: values.dob // Keep as dayjs object for state
+      dob: values.dob // Store the dayjs date object for submission
     };
     console.log('Updated Driver Information:', formattedValues);
     setDriverInfo(formattedValues);
-    console.log(driverInfo)
+
+    const updatedInfo = { ...formattedValues, mail:email }; // Include email in the data to send
+
     setIsModalVisible(false);
     try {
-        fetch("http://localhost:3000/updateDriver", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(driverInfo),
-        })
-      } catch (error) {
-        console.error('Error submitting form: ', error);
-      }
-  };
-
-  // Custom language and certification handlers
-  const handleLanguageChange = (value) => {
-    form.setFieldsValue({ languages: value });
-  };
-
-  const handleCertificationChange = (value) => {
-    form.setFieldsValue({ certifications: value });
+      fetch("http://localhost:3000/updateDriver", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedInfo),
+      });
+    } catch (error) {
+      console.error('Error submitting form: ', error);
+    }
   };
 
   return (
@@ -68,10 +55,10 @@ function DriverPersonalModal() {
       <Row gutter={[16, 16]} style={{ marginTop: 20 }}>
         <Col xs={24} sm={24} md={12}>
           <Card title="Personal Information">
-            <p><Text strong>Date of Birth:</Text> {driverInfo.dob.format('YYYY-MM-DD')}</p>
-            <p><Text strong>Address:</Text> {driverInfo.address}</p>
-            <p><Text strong>Emergency Contact:</Text> {driverInfo.emergencyContact}</p>
-            <p><Text strong>Operating Area:</Text> {driverInfo.area}</p>
+            <p><Text strong>Date of Birth:</Text> {personalInfo?.dob}</p>
+            <p><Text strong>Address:</Text> {personalInfo?.address}</p>
+            <p><Text strong>Emergency Contact:</Text> {personalInfo?.emergencyContact}</p>
+            <p><Text strong>Operating Area:</Text> {personalInfo?.area}</p>
           </Card>
         </Col>
         
@@ -79,7 +66,7 @@ function DriverPersonalModal() {
           <Card title="Languages & Certifications">
             <div style={{ marginBottom: 16 }}>
               <Text strong>Languages:</Text><br />
-              {driverInfo.languages.map((lang) => (
+              {personalInfo?.languages?.map((lang) => (
                 <Tag color="blue" key={lang} style={{ margin: '4px' }}>
                   {lang}
                 </Tag>
@@ -87,7 +74,7 @@ function DriverPersonalModal() {
             </div>
             <div>
               <Text strong>Certifications:</Text><br />
-              {driverInfo.certifications.map((cert) => (
+              {personalInfo?.certifications?.map((cert) => (
                 <Tag color="green" key={cert} style={{ margin: '4px' }}>
                   {cert}
                 </Tag>
@@ -133,7 +120,6 @@ function DriverPersonalModal() {
               mode="tags"
               style={{ width: '100%' }}
               placeholder="Select or enter languages"
-              onChange={handleLanguageChange}
             >
               <Option value="English">English</Option>
               <Option value="Spanish">Spanish</Option>
@@ -160,7 +146,6 @@ function DriverPersonalModal() {
               mode="tags"
               style={{ width: '100%' }}
               placeholder="Select or enter certifications"
-              onChange={handleCertificationChange}
             >
               <Option value="Defensive Driving Certified">Defensive Driving Certified</Option>
               <Option value="First Aid Certified">First Aid Certified</Option>
