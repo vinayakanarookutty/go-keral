@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Tabs, Card, Avatar, Typography, Form, Input, Button, Table, Tag, Modal, message, Select, Checkbox, Row, Col, Layout, Upload } from 'antd';
-import { UserOutlined, CarOutlined, SettingOutlined, PlusOutlined, BellOutlined } from '@ant-design/icons';
-import { useLocation } from 'react-router-dom';
+import { UserOutlined, CarOutlined, SettingOutlined, PlusOutlined, BellOutlined,LogoutOutlined } from '@ant-design/icons';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Image } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+
+import { UploadOutlined,LoadingOutlined } from '@ant-design/icons';
 import axios from 'axios';
 const { Dragger } = Upload;
 const { Title, Text } = Typography;
@@ -11,6 +12,9 @@ const { Header, Content } = Layout;
 import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import PdfComp from '../../components/pdf';
+import { useUserStore } from '../../store/user';
+import { NotFound } from '../../components/notFound';
+import DriverPersonalModal from '../../modal/DriverPersonalModal';
 
 
 export default function DriverProfile() {
@@ -18,16 +22,16 @@ export default function DriverProfile() {
   const [vehicles, setVehicles] = useState([]);
   const [userDetails, setUserDetails] = useState({});
   const [form] = Form.useForm();
-  const location = useLocation();
-  const { email } = location.state || {};
+  const navigate = useNavigate();
   const [fileList1, setFileList1] = useState([]);
   const [fileList2, setFileList2] = useState([]);
   const [fileList3, setFileList3] = useState([]);
   const [fileList4, setFileList4] = useState([]);
   const [pdfFile, setPdfFile] = useState(null);
   const [bookings, setBookings] = useState([]);
-  
-
+  const user = useUserStore((state: any) => state?.userDetails);
+  const logoutUser = useUserStore((state: any) => state?.logoutUser);
+console.log(userDetails)
   useEffect(() => {
     fetchBookings();
   }, []);
@@ -46,7 +50,7 @@ export default function DriverProfile() {
   };
   const showModal = () => setIsModalVisible(true);
   useEffect(() => {
-    fetch(`http://localhost:3000/driverDetails?id=${email}`, {
+    fetch(`http://localhost:3000/driverDetails?id=${user?.email}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -57,11 +61,10 @@ export default function DriverProfile() {
       .then(data => {
         setUserDetails(data);
         console.log(data)
-
+        setImageUrl(data.imageUrl)
       })
       .catch((error) => {
         console.error('Error:', error);
-        message.error('Registration failed. Please try again.');
       });
   }, [])
 
@@ -228,8 +231,59 @@ export default function DriverProfile() {
     const { fileList } = info;
     setFileList(fileList.slice(-1)); // Only keep the last file
   };
+  type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
+
+  const getBase64 = (img: FileType, callback: (url: string) => void) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => callback(reader.result as string));
+    reader.readAsDataURL(img);
+  };
+  
+  const beforeUpload = (file: FileType) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      message.error('You can only upload JPG/PNG file!');
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('Image must smaller than 2MB!');
+    }
+    return isJpgOrPng && isLt2M;
+  };
+
+    const [imageUrl, setImageUrl] = useState<string>();
+  
+    const handleChange: UploadProps['onChange'] = (info) => {
+     
+        // Get this url from response in real world.
+        getBase64(info.file.originFileObj as FileType, (url) => {
+          setLoading(false);
+          setImageUrl(url);
+          const value={
+            imageUrl:imageUrl,
+            mail:user?.email}
+          try {
+            fetch("http://localhost:3000/updateDriver", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(value),
+            })
+          } catch (error) {
+            console.error('Error submitting form: ', error);
+          }
+        });
+      
+    };
+  
+    const uploadButton = (
+      <button style={{ border: 0, background: 'none' }} type="button">
+        {loading ? <LoadingOutlined /> : <PlusOutlined />}
+        <div style={{ marginTop: 8 }}>Upload</div>
+      </button>
+    );
+  
   return (
-    <Layout className="min-h-screen">
+      user.name ?  <Layout className="min-h-screen">
       {/* Top Header */}
       <Header className="flex items-center justify-between px-8 bg-white border-b">
         <div className="flex items-center gap-4">
@@ -242,7 +296,7 @@ export default function DriverProfile() {
         </div>
         <div className="flex items-center gap-4">
           <Button type="text" icon={<BellOutlined />} />
-          <Avatar icon={<UserOutlined />} className="bg-blue-500" />
+        <Button onClick={() => { logoutUser();  navigate('/driverLogin') }}><LogoutOutlined /></Button> 
         </div>
       </Header>
 
@@ -261,13 +315,25 @@ export default function DriverProfile() {
             }
           >
             <div className="flex flex-col sm:flex-row items-center gap-6">
-              <Image
-                width={200}
-                src="https://i.pinimg.com/236x/85/59/09/855909df65727e5c7ba5e11a8c45849a.jpg"
-              />
+            <Upload
+        name="avatar"
+        listType="picture-card"
+        className="avatar-uploader"
+        showUploadList={false}
+        action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+        beforeUpload={beforeUpload}
+        onChange={handleChange}
+      >
+        {imageUrl ? <Image
+      src={imageUrl}
+      alt="Profile Picture"
+      width={200} // Specify the width here
+      height={100} // Specify the height here
+     /> : uploadButton}
+      </Upload>
               <div className="text-center sm:text-left -mt-8 sm:mt-0">
-                <Title level={2} className="!mb-0">{userDetails?.name}</Title>
-                <Text className="text-gray-500">{email || 'Professional Driver'}</Text>
+                <Title level={2} className="!mb-0">{user.name}</Title>
+                <Text className="text-gray-500">{userDetails?.email|| 'Professional Driver'}</Text>
               </div>
             </div>
           </Card>
@@ -280,6 +346,18 @@ export default function DriverProfile() {
               items={[
                 {
                   key: '1',
+                  label: (
+                    <span className="flex items-center px-2">
+                      <UserOutlined className="mr-2" />
+                      <span className="hidden sm:inline">Personal Informations</span>
+                    </span>
+                  ),
+                  children: (
+                   <DriverPersonalModal/>
+                  ),
+                },
+                {
+                  key: '2',
                   label: (
                     <span className="flex items-center px-2">
                       <UserOutlined className="mr-2" />
@@ -309,7 +387,7 @@ export default function DriverProfile() {
                   ),
                 },
                 {
-                  key: '2',
+                  key: '3',
                   label: (
                     <span className="flex items-center px-2">
                       <CarOutlined className="mr-2" />
@@ -359,7 +437,7 @@ export default function DriverProfile() {
                   ),
                 },
                 {
-                  key: '3',
+                  key: '4',
                   label: (
                     <span className="flex items-center px-2">
                       <SettingOutlined className="mr-2" />
@@ -538,42 +616,7 @@ export default function DriverProfile() {
         </Form>
       </Modal>
 
-      {/* Custom styles */}
-      <style jsx global>{`
-        .ant-tabs-nav {
-          margin-bottom: 24px !important;
-        }
-        
-        .ant-tabs-tab {
-          padding: 12px 24px !important;
-          margin: 0 !important;
-        }
-
-        .ant-tabs-tab-active {
-          background: rgba(59, 130, 246, 0.1);
-          border-radius: 8px;
-        }
-
-        .ant-card {
-          border-radius: 12px;
-        }
-
-        .ant-input, .ant-input-textarea, .ant-select-selector, .ant-btn {
-          border-radius: 8px !important;
-        }
-
-        .custom-table .ant-table {
-          background: transparent;
-        }
-
-        .ant-table-thead > tr > th {
-          background: #f8fafc !important;
-        }
-
-        .full-width-tabs .ant-tabs-nav::before {
-          border: none !important;
-        }
-      `}</style>
-    </Layout>
+    
+    </Layout> :<NotFound/>
   );
 }

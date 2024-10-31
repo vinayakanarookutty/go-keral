@@ -3,13 +3,14 @@ import { Form, Input, Button, Checkbox, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { Car } from 'lucide-react';
+import { useUserStore } from '../../store/user';
 
 const { Title, Text } = Typography;
 
 export function DriverRegistrationPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-
+  const login=useUserStore((state:any)=>state?.loginUser)
   const onFinish = (values) => {
     console.log('Success:', values);
     message.success('Registration successful!');
@@ -22,9 +23,11 @@ export function DriverRegistrationPage() {
     })
     .then(response => response.json())
     .then(data => {
-      console.log('Success:', data);
-      if(data == "Driver Created Succesfully"){
-        navigate('/driverProfile',{ state: { email: values.email } })
+    
+  
+      if(data.message == "Driver Created Succesfully"){
+        navigate('/driverProfile')
+        login({email:data.user.email,name:data.user.name})
       }
     })
     .catch((error) => {

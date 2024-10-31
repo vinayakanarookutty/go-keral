@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Map, { Source, Layer, Marker, Popup } from 'react-map-gl';
-import { AutoComplete,  Radio, Typography, Button, Modal, Form,  message,Card,Checkbox,Select } from 'antd';
+import { AutoComplete,  Radio, Typography, Button, Modal, Form,  message,Card,Checkbox,Select,DatePicker, TimePicker } from 'antd';
 import { EnvironmentFilled, } from '@ant-design/icons';
 import axios from 'axios';
 import { useUserStore } from '../../store/user';
@@ -60,7 +60,17 @@ const Maps: React.FC = () => {
   const ROUTE_COLORS = ['#1d77c0', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'];
   const userDetails = useUserStore((state: any) => state?.userDetails);
   const [currentPlaceId, setCurrentPlaceId] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
 
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
+
+  const handleTimeChange = (time) => {
+    setSelectedTime(time);
+  };
   useEffect(() => {
     const fetchPins = async () => {
       try {
@@ -214,7 +224,9 @@ const Maps: React.FC = () => {
       premiumPrice,
       luxuryPrice,
       passengers,
-      serviceType
+      serviceType,
+      selectedDate,
+      selectedTime
     };
     console.log(bookingDetails)
     if(passengers<25){
@@ -518,7 +530,7 @@ const Maps: React.FC = () => {
           Premium
         </Checkbox>
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center mb-4">
         <Select
           placeholder="Select number of passengers"
           onChange={setPassengers}
@@ -532,8 +544,24 @@ const Maps: React.FC = () => {
           ))}
         </Select>
       </div>
+      <div className="flex justify-center mb-4">
+        <DatePicker
+          placeholder="Select date"
+          onChange={handleDateChange}
+          style={{ width: 200 }}
+          value={selectedDate}
+        />
+      </div>
+      <div className="flex justify-center">
+        <TimePicker
+          placeholder="Select time"
+          onChange={handleTimeChange}
+          style={{ width: 200 }}
+          value={selectedTime}
+          format="HH:mm"
+        />
+      </div>
     </Modal>
-
     </div>
   );
 };

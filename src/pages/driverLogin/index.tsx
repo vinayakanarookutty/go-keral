@@ -4,12 +4,14 @@ import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-de
 import { Link, useNavigate } from 'react-router-dom';
 import { Car } from 'lucide-react';
 import { useHistory } from "react-router-dom";
+import { useUserStore } from '../../store/user';
 const { Title, Text } = Typography;
 
 export function DriverLogin() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-
+  const logoutUser = useUserStore((state: any) => state?.logoutUser);
+  const login=useUserStore((state:any)=>state?.loginUser)
   const onFinish = (values) => {
     console.log('Success:', values);
     
@@ -23,9 +25,10 @@ export function DriverLogin() {
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
-      if(data == "User Found"){
+      if(data.message == "User Found"){
         message.success('Login successful!');
-        navigate('/driverProfile', { state: { email: values.email } });
+        login({email:data.user.email,name:data.user.name})
+        navigate('/driverProfile');
       }
     })
     .catch((error) => {
