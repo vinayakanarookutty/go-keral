@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Table, Modal, Select, Row, Col, Upload, message } from 'antd';
-import { PlusOutlined, UploadOutlined, EditOutlined, PictureOutlined } from '@ant-design/icons';
+import { PlusOutlined, UploadOutlined, EditOutlined, PictureOutlined, DeleteOutlined } from '@ant-design/icons';
 const { Dragger } = Upload;
 import axios from 'axios';
+import { useUserStore } from '../../store/user';
 
 function DriverAddVehicleModal() {
   const [loading, setLoading] = useState(true);
@@ -30,7 +31,7 @@ function DriverAddVehicleModal() {
   useEffect(() => {
     fetchVehicles();
   }, []);
-
+  const user = useUserStore((state: any) => state?.userDetails);
   const fetchVehicles = async () => {
     try {
       const response = await axios.get('http://localhost:3000/getvehicles');
@@ -154,7 +155,7 @@ function DriverAddVehicleModal() {
     try {
       const values = await form.validateFields();
       const formData = new FormData();
-
+        formData.email=user.email
       // Append form values
       Object.keys(values).forEach(key => {
         formData.append(key, values[key]);
@@ -236,6 +237,23 @@ function DriverAddVehicleModal() {
     value: 2017 + i,
   }));
 
+
+  const deleteVehicle = async (vehicleId) => {
+    console.log(vehicleId)
+    if (!window.confirm('Are you sure you want to delete this vehicle? This action cannot be undone.')) return;
+
+    try {
+      await axios.delete(`http://localhost:3000/deletevehicle/${vehicleId}`);
+      
+      // Remove the vehicle from the UI after successful deletion
+      setVehicles((prevVehicles) => prevVehicles.filter((vehicle) => vehicle._id !== vehicleId));
+      alert('Vehicle deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting vehicle:', error);
+      alert('Failed to delete the vehicle. Please try again.');
+    }
+  };
+
   const columns = [
     { title: 'Make', dataIndex: 'make', key: 'make' },
     { title: 'Model', dataIndex: 'model', key: 'model' },
@@ -299,6 +317,7 @@ function DriverAddVehicleModal() {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
+        <>
         <Button
           icon={<EditOutlined />}
           onClick={() => showModal(record)}
@@ -306,6 +325,14 @@ function DriverAddVehicleModal() {
         >
           Edit
         </Button>
+        <Button
+          icon={<DeleteOutlined />}
+          onClick={() => deleteVehicle(record._id)}
+          type="link"
+        >
+         Delete
+        </Button>
+        </>
       ),
     },
   ];

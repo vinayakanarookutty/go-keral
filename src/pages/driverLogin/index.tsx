@@ -33,7 +33,7 @@ export function DriverLogin() {
     })
     .catch((error) => {
       console.error('Error:', error);
-      message.error('Registration failed. Please try again.');
+      message.error('Login failed. Please try again.');
     });
   };
 
