@@ -37,7 +37,11 @@ console.log(userDetails)
     setLoading(true);
     try {
       const response = await axios.get('http://localhost:3000/bookings');
-      setBookings(response.data);
+      const filteredBookings = user.email
+        ? response.data.filter((booking) => booking.driverName === user.name)
+        : response.data;
+  
+      setBookings(filteredBookings);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       message.error('Failed to fetch bookings');
@@ -45,6 +49,7 @@ console.log(userDetails)
       setLoading(false);
     }
   };
+  
  
   useEffect(() => {
     fetch(`http://localhost:3000/driverDetails?id=${user?.email}`, {
@@ -110,7 +115,7 @@ console.log(userDetails)
     { title: 'Destination', dataIndex: 'destination', key: 'destination' },
     { title: 'Distance', dataIndex: 'distance', key: 'distance' },
     { title: 'Duration', dataIndex: 'duration', key: 'duration' },
-    { title: 'DriverName', dataIndex: 'driverName', key: 'driverName' },
+    { title: 'Date', dataIndex: 'date', key: 'date' },
     
   ];
 

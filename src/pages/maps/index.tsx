@@ -229,12 +229,12 @@ const Maps: React.FC = () => {
       selectedTime
     };
     console.log(bookingDetails)
-    if(passengers<25){
+   
       navigate('/bookingconfirmation', { state: bookingDetails });
-    }
-    else{
-      navigate('/quatation',{ state: bookingDetails })
-    }
+ 
+    // else{
+    //   navigate('/quatation',{ state: bookingDetails })
+    // }
     
   };
 

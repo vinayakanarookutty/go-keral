@@ -34,13 +34,13 @@ function DriverAddVehicleModal() {
   const user = useUserStore((state: any) => state?.userDetails);
   const fetchVehicles = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/getvehicles');
+      const response = await axios.get(`http://localhost:3000/getvehicles?id=${user?.email}`);
       const data = Array.isArray(response.data) ? response.data : [];
       setVehicles(data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching vehicles:', error);
-      message.error('Failed to fetch vehicles');
+    
       setLoading(false);
     }
   };
@@ -86,7 +86,8 @@ function DriverAddVehicleModal() {
         licensePlate: vehicle.licensePlate,
         vehicleType: vehicle.vehicleType,
         seatsNo: vehicle.seatsNo,
-        vehicleClass: vehicle.vehicleClass
+        vehicleClass: vehicle.vehicleClass,
+        email:user.email
       });
 
       // Handle existing documents
@@ -155,7 +156,7 @@ function DriverAddVehicleModal() {
     try {
       const values = await form.validateFields();
       const formData = new FormData();
-        formData.email=user.email
+        
       // Append form values
       Object.keys(values).forEach(key => {
         formData.append(key, values[key]);
@@ -185,7 +186,7 @@ function DriverAddVehicleModal() {
         .map(file => file.response.path);
       
       formData.append('existing_vehicleImages', JSON.stringify(existingImages));
-
+      formData.append('email',user?.email)
       vehicleImages
         .filter(file => file.originFileObj)
         .forEach(file => {

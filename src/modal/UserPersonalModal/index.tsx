@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 const { Option } = Select;
 const { Text } = Typography;
 
-function DriverPersonalModal({ email, personalInfo }) {
+function UserPersonalModal({ email, personalInfo }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [driverInfo, setDriverInfo] = useState(personalInfo);
@@ -35,7 +35,7 @@ function DriverPersonalModal({ email, personalInfo }) {
 
     setIsModalVisible(false);
     try {
-      fetch("http://localhost:3000/updateDriver", {
+      fetch("http://localhost:3000/updateUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedInfo),
@@ -57,35 +57,27 @@ function DriverPersonalModal({ email, personalInfo }) {
           <Card title="Personal Information">
             <p><Text strong>Date of Birth:</Text> {personalInfo?.dob?.substring(0, 10).split('-').reverse().join('-')}</p>
             <p><Text strong>Address:</Text> {personalInfo?.address}</p>
-            <p><Text strong>Emergency Contact:</Text> {personalInfo?.emergencyContact}</p>
-            <p><Text strong>Operating Area:</Text> {personalInfo?.area}</p>
+       
           </Card>
         </Col>
         
         <Col xs={24} sm={24} md={12}>
-          <Card title="Languages & Certifications">
+          <Card title="Hobbies">
             <div style={{ marginBottom: 16 }}>
-              <Text strong>Languages:</Text><br />
-              {personalInfo?.languages?.map((lang) => (
+              <Text strong>Hobbies:</Text><br />
+              {personalInfo?.hobbies?.map((lang) => (
                 <Tag color="blue" key={lang} style={{ margin: '4px' }}>
                   {lang}
                 </Tag>
               ))}
             </div>
-            <div>
-              <Text strong>Certifications:</Text><br />
-              {personalInfo?.certifications?.map((cert) => (
-                <Tag color="green" key={cert} style={{ margin: '4px' }}>
-                  {cert}
-                </Tag>
-              ))}
-            </div>
+           
           </Card>
         </Col>
       </Row>
 
       <Modal
-        title="Driver Personal Information"
+        title=" Personal Information"
         open={isModalVisible}
         onCancel={handleCancel}
         footer={null}
@@ -98,7 +90,7 @@ function DriverPersonalModal({ email, personalInfo }) {
           <Form.Item
             label="Date of Birth"
             name="dob"
-            rules={[{ required: true, message: "Please enter the driver's date of birth!" }]}
+            rules={[{ required: true, message: "Please enter your date of birth!" }]}
           >
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
@@ -106,62 +98,28 @@ function DriverPersonalModal({ email, personalInfo }) {
           <Form.Item
             label="Address"
             name="address"
-            rules={[{ required: true, message: "Please enter the driver's address!" }]}
+            rules={[{ required: true, message: "Please enter your address!" }]}
           >
             <Input.TextArea rows={2} />
           </Form.Item>
 
           <Form.Item
-            label="Languages Spoken"
-            name="languages"
-            rules={[{ required: true, message: "Please enter the languages spoken by the driver!" }]}
+            label="Hobbies"
+            name="hobbies"
+            rules={[{ required: true, message: "Please enter theyour hobbies" }]}
           >
             <Select
               mode="tags"
               style={{ width: '100%' }}
-              placeholder="Select or enter languages"
+              placeholder="Select or enter hobbies"
             >
-              <Option value="English">English</Option>
-              <Option value="Spanish">Spanish</Option>
-              <Option value="French">French</Option>
-              <Option value="German">German</Option>
-              <Option value="Hindi">Hindi</Option>
+              <Option value="Traveling">Traveling</Option>
+              <Option value="Reading">Reading</Option>
+              
             </Select>
           </Form.Item>
 
-          <Form.Item
-            label="Operating Area"
-            name="area"
-            rules={[{ required: true, message: "Please enter the driver's operating area!" }]}
-          >
-            <Input placeholder="E.g., Downtown, Suburban" />
-          </Form.Item>
-
-          <Form.Item
-            label="Certifications"
-            name="certifications"
-            rules={[{ required: true, message: "Please enter the driver's certifications!" }]}
-          >
-            <Select
-              mode="tags"
-              style={{ width: '100%' }}
-              placeholder="Select or enter certifications"
-            >
-              <Option value="Defensive Driving Certified">Defensive Driving Certified</Option>
-              <Option value="First Aid Certified">First Aid Certified</Option>
-              <Option value="Hazardous Materials Endorsement">Hazardous Materials Endorsement</Option>
-              <Option value="Commercial Driving License">Commercial Driving License</Option>
-              <Option value="Customer Service Training">Customer Service Training</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="Emergency Contact"
-            name="emergencyContact"
-            rules={[{ required: true, message: "Please enter an emergency contact!" }]}
-          >
-            <Input placeholder="Name - Phone Number" />
-          </Form.Item>
+        
 
           <Form.Item>
             <Button type="primary" htmlType="submit">
@@ -174,4 +132,4 @@ function DriverPersonalModal({ email, personalInfo }) {
   );
 }
 
-export default DriverPersonalModal;
+export default UserPersonalModal;

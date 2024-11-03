@@ -30,6 +30,14 @@ export function DriverLogin() {
         login({email:data.user.email,name:data.user.name})
         navigate('/driverProfile');
       }
+      if(data == "Password is Wrong"){
+        message.error('Password is Wrong');
+      
+      }
+      if(data == "UserName is Wrong"){
+        message.error('UserName is Wrong');
+      
+      }
     })
     .catch((error) => {
       console.error('Error:', error);
