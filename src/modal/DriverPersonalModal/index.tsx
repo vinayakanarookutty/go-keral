@@ -35,7 +35,7 @@ function DriverPersonalModal({ email, personalInfo }) {
 
     setIsModalVisible(false);
     try {
-      fetch("http://localhost:3000/updateDriver", {
+      fetch(`${import.meta.env.VITE_API_URL}/updateDriver`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedInfo),

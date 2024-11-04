@@ -35,7 +35,7 @@ function UserPersonalModal({ email, personalInfo }) {
 
     setIsModalVisible(false);
     try {
-      fetch("http://localhost:3000/updateUser", {
+      fetch(`${import.meta.env.VITE_API_URL}/updateUser`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedInfo),

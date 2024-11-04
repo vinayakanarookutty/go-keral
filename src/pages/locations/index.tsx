@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Map, { Source, Layer, Marker ,Popup} from 'react-map-gl';
-import { AutoComplete, List, Card, Radio, Space, Typography, Button, Modal, Form, Input, message } from 'antd';
+import { AutoComplete,  Card, Radio, Space, Typography, Button, Modal, Form, Input, message } from 'antd';
 import { EnvironmentTwoTone } from '@ant-design/icons';
 import axios from 'axios';
 import { useUserStore } from '../../store/user';
@@ -72,7 +72,6 @@ const Maps: React.FC = () => {
   ]);
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
   const ROUTE_COLORS = ['#1d77c0', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'];
-  const userDetails = useUserStore((state: any) => state?.userDetails);
   const [currentPlaceId, setCurrentPlaceId] = useState<string | null>(null);
   const searchPlace = async (
     query: string,
@@ -123,7 +122,7 @@ const Maps: React.FC = () => {
 
   useEffect(() => {
     const fetchData= async()=>{
-      const values = await axios.get(`http://localhost:3000/pins`)
+      const values = await axios.get(`${import.meta.env.VITE_API_URL}/pins`)
      setPins(values.data)
     }
   fetchData()

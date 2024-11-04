@@ -1,21 +1,20 @@
 import React from 'react';
-import { Form, Input, Button, Checkbox, Typography, message } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Typography, message } from 'antd';
+import {  LockOutlined,  PhoneOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { Car } from 'lucide-react';
-import { useHistory } from "react-router-dom";
+
 import { useUserStore } from '../../store/user';
 const { Title, Text } = Typography;
 
 export function DriverLogin() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const logoutUser = useUserStore((state: any) => state?.logoutUser);
+ 
   const login=useUserStore((state:any)=>state?.loginUser)
   const onFinish = (values) => {
     console.log('Success:', values);
     
-    fetch('http://localhost:3000/login', {
+    fetch(`${import.meta.env.VITE_API_URL}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

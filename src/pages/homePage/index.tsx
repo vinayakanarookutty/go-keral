@@ -1,11 +1,9 @@
-import React,{useState} from "react";
+import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser,  faHome, faInfoCircle, faDollar, faPhone, faSignInAlt, faUserPlus, faComment, faStar, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { faFacebookF, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
-import { AppstoreOutlined, LoginOutlined, MailOutlined, MenuUnfoldOutlined, SettingOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Button, Menu } from 'antd';
-import { AtSignIcon, LogInIcon } from "lucide-react";
+import {  faComment, } from '@fortawesome/free-solid-svg-icons';
+
+import { Button,  } from 'antd';
+
 import { useUserStore } from "../../store/user";
 
 const HomePage: React.FC = () => {

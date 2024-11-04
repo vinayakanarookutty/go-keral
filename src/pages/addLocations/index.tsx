@@ -52,7 +52,7 @@ const DestinationMap: React.FC = () => {
 
   useEffect(()=>{
     const fetchData= async()=>{
-      const values = await axios.get(`http://localhost:3000/pins`)
+      const values = await axios.get(`${import.meta.env.VITE_API_URL}/pins`)
      setPins(values.data)
     }
   fetchData()
@@ -75,7 +75,7 @@ const DestinationMap: React.FC = () => {
       latitude: newPlace.latitude,
       longitude: newPlace.longitude,
     };
-    axios.post<Pin>('http://localhost:3000/pins', newPin);
+    axios.post<Pin>('${import.meta.env.VITE_API_URL}/pins', newPin);
     setPins(prevPins => [...prevPins, newPin]);
     setNewPlace(null);
     alert("Succesfully updated")

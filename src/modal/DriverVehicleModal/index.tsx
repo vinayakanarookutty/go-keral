@@ -34,7 +34,7 @@ function DriverAddVehicleModal() {
   const user = useUserStore((state: any) => state?.userDetails);
   const fetchVehicles = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/getvehicles?id=${user?.email}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/getvehicles?id=${user?.email}`);
       const data = Array.isArray(response.data) ? response.data : [];
       setVehicles(data);
       setLoading(false);
@@ -97,7 +97,7 @@ function DriverAddVehicleModal() {
             uid: '-1',
             name: vehicle.documents.Driving_Licence.originalname,
             status: 'done',
-            url: `http://localhost:3000/${vehicle.documents.Driving_Licence.path}`,
+            url: `${import.meta.env.VITE_API_URL}/${vehicle.documents.Driving_Licence.path}`,
             response: { path: vehicle.documents.Driving_Licence.path }
           }]);
         }
@@ -106,7 +106,7 @@ function DriverAddVehicleModal() {
             uid: '-1',
             name: vehicle.documents.Vehicle_Insurance_Proof.originalname,
             status: 'done',
-            url: `http://localhost:3000/${vehicle.documents.Vehicle_Insurance_Proof.path}`,
+            url: `${import.meta.env.VITE_API_URL}/${vehicle.documents.Vehicle_Insurance_Proof.path}`,
             response: { path: vehicle.documents.Vehicle_Insurance_Proof.path }
           }]);
         }
@@ -115,7 +115,7 @@ function DriverAddVehicleModal() {
             uid: '-1',
             name: vehicle.documents.Proof_Of_Address.originalname,
             status: 'done',
-            url: `http://localhost:3000/${vehicle.documents.Proof_Of_Address.path}`,
+            url: `${import.meta.env.VITE_API_URL}/${vehicle.documents.Proof_Of_Address.path}`,
             response: { path: vehicle.documents.Proof_Of_Address.path }
           }]);
         }
@@ -124,7 +124,7 @@ function DriverAddVehicleModal() {
             uid: '-1',
             name: vehicle.documents.Police_Clearance_Certificate.originalname,
             status: 'done',
-            url: `http://localhost:3000/${vehicle.documents.Police_Clearance_Certificate.path}`,
+            url: `${import.meta.env.VITE_API_URL}/${vehicle.documents.Police_Clearance_Certificate.path}`,
             response: { path: vehicle.documents.Police_Clearance_Certificate.path }
           }]);
         }
@@ -136,7 +136,7 @@ function DriverAddVehicleModal() {
           uid: `-${index}`,
           name: img.originalname,
           status: 'done',
-          url: `http://localhost:3000/${img.path}`,
+          url: `${import.meta.env.VITE_API_URL}/${img.path}`,
           response: { path: img.path }
         }));
         setVehicleImages(existingImages);
@@ -194,8 +194,8 @@ function DriverAddVehicleModal() {
         });
 
       const url = editingVehicle 
-        ? `http://localhost:3000/updatevehicle/${editingVehicle._id}`
-        : 'http://localhost:3000/addvehicles';
+        ? `${import.meta.env.VITE_API_URL}/updatevehicle/${editingVehicle._id}`
+        : `${import.meta.env.VITE_API_URL}/addvehicles`;
 
       const response = await fetch(url, {
         method: editingVehicle ? 'PUT' : 'POST',
@@ -244,7 +244,7 @@ function DriverAddVehicleModal() {
     if (!window.confirm('Are you sure you want to delete this vehicle? This action cannot be undone.')) return;
 
     try {
-      await axios.delete(`http://localhost:3000/deletevehicle/${vehicleId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/deletevehicle/${vehicleId}`);
       
       // Remove the vehicle from the UI after successful deletion
       setVehicles((prevVehicles) => prevVehicles.filter((vehicle) => vehicle._id !== vehicleId));
@@ -270,28 +270,28 @@ function DriverAddVehicleModal() {
         <Row gutter={[8, 8]}>
           {record.documents?.Driving_Licence && (
             <Col>
-              <Button size="small" onClick={() => window.open(`http://localhost:3000/${record.documents.Driving_Licence.path}`, '_blank')}>
+              <Button size="small" onClick={() => window.open(`${import.meta.env.VITE_API_URL}/${record.documents.Driving_Licence.path}`, '_blank')}>
                 License
               </Button>
             </Col>
           )}
           {record.documents?.Vehicle_Insurance_Proof && (
             <Col>
-              <Button size="small" onClick={() => window.open(`http://localhost:3000/${record.documents.Vehicle_Insurance_Proof.path}`, '_blank')}>
+              <Button size="small" onClick={() => window.open(`${import.meta.env.VITE_API_URL}/${record.documents.Vehicle_Insurance_Proof.path}`, '_blank')}>
                 Insurance
               </Button>
             </Col>
           )}
           {record.documents?.Proof_Of_Address && (
             <Col>
-              <Button size="small" onClick={() => window.open(`http://localhost:3000/${record.documents.Proof_Of_Address.path}`, '_blank')}>
+              <Button size="small" onClick={() => window.open(`${import.meta.env.VITE_API_URL}/${record.documents.Proof_Of_Address.path}`, '_blank')}>
                 Address
               </Button>
             </Col>
           )}
           {record.documents?.Police_Clearance_Certificate && (
             <Col>
-              <Button size="small" onClick={() => window.open(`http://localhost:3000/${record.documents.Police_Clearance_Certificate.path}`, '_blank')}>
+              <Button size="small" onClick={() => window.open(`${import.meta.env.VITE_API_URL}/${record.documents.Police_Clearance_Certificate.path}`, '_blank')}>
                 Police Cert
               </Button>
             </Col>
@@ -306,7 +306,7 @@ function DriverAddVehicleModal() {
         <Row gutter={[8, 8]}>
           {record.vehicleImages?.map((image, index) => (
             <Col key={index}>
-              <Button size="small" onClick={() => window.open(`http://localhost:3000/${image.path}`, '_blank')}>
+              <Button size="small" onClick={() => window.open(`${import.meta.env.VITE_API_URL}/${image.path}`, '_blank')}>
                 Image {index + 1}
               </Button>
             </Col>

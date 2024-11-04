@@ -1,4 +1,3 @@
-import React from 'react';
 import { Form, Input, Button,  Typography, message } from 'antd';
 import {  LockOutlined, PhoneOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
@@ -9,10 +8,10 @@ export function AdminLogin() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const onFinish = (values) => {
+  const onFinish = (values:any) => {
     console.log('Success:', values);
     
-    fetch('http://localhost:3000/adminlogin', {
+    fetch(`${import.meta.env.VITE_API_URL}/adminlogin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -33,7 +32,7 @@ export function AdminLogin() {
     });
   };
 
-  const onFinishFailed = (errorInfo) => {
+  const onFinishFailed = (errorInfo:any) => {
     console.log('Failed:', errorInfo);
     message.error('Registration failed. Please check your inputs.');
   };

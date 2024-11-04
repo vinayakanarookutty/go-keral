@@ -1,8 +1,8 @@
-import React from 'react';
+
 import { Form, Input, Button, Checkbox, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { Car } from 'lucide-react';
+
 
 const { Title, Text } = Typography;
 
@@ -10,10 +10,10 @@ export function AdminRegistrationPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const onFinish = (values) => {
+  const onFinish = (values:any) => {
     console.log('Success:', values);
     message.success('Registration successful!');
-    fetch('http://localhost:3000/adminsignup', {
+    fetch(`${import.meta.env.VITE_API_URL}/adminsignup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

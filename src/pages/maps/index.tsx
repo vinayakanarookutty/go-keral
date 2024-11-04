@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Map, { Source, Layer, Marker, Popup } from 'react-map-gl';
-import { AutoComplete,  Radio, Typography, Button, Modal, Form,  message,Card,Checkbox,Select,DatePicker, TimePicker } from 'antd';
+import { AutoComplete,  Radio, Typography, Button, Modal, Form, Input, message,Card,Checkbox,Select,DatePicker, TimePicker } from 'antd';
 import { EnvironmentFilled, } from '@ant-design/icons';
 import axios from 'axios';
 import { useUserStore } from '../../store/user';
 import { useNavigate } from 'react-router-dom';
-import { Users, Car,  } from 'lucide-react';
-import { InputNumber } from 'antd';
-import { UserOutlined, } from '@ant-design/icons';
+
 const { Option } = AutoComplete;
 const { Text, Title } = Typography;
 interface PlaceOption {
@@ -53,12 +51,12 @@ const Maps: React.FC = () => {
   const [destCoords, setDestCoords] = useState<[number, number] | null>(null);
   const [routes, setRoutes] = useState<Route[]>([]);
   const [selectedRouteIndex, setSelectedRouteIndex] = useState<number | null>(null);
-  const [isBookingModalVisible, setIsBookingModalVisible] = useState<boolean>(false);
-  const [form] = Form.useForm();
+  const [passengerName, setPassengerName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [pins, setPins] = useState<Pin[]>([]);
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
   const ROUTE_COLORS = ['#1d77c0', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'];
-  const userDetails = useUserStore((state: any) => state?.userDetails);
+ 
   const [currentPlaceId, setCurrentPlaceId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
@@ -74,7 +72,7 @@ const Maps: React.FC = () => {
   useEffect(() => {
     const fetchPins = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/pins');
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/pins`);
         setPins(response.data);
       } catch (error) {
         console.error('Error fetching pins:', error);
@@ -189,12 +187,7 @@ const Maps: React.FC = () => {
   const [modalAnimationKey, setModalAnimationKey] = useState(0);
 
 
-  const handlePassengerChange = (value: number | null) => {
-    if (value) {
-      setPassengers(value);
-      setModalAnimationKey(prev => prev + 1);
-    }
-  };
+
 
   const showPassengerModal = () => {
     if (selectedRouteIndex === null) {
@@ -226,7 +219,9 @@ const Maps: React.FC = () => {
       passengers,
       serviceType,
       selectedDate,
-      selectedTime
+      selectedTime,
+      phoneNumber,
+      passengerName
     };
     console.log(bookingDetails)
    
@@ -503,65 +498,83 @@ const Maps: React.FC = () => {
         </div>
       </div>
       <Modal
-      title={
-        <div className="text-center">
-          <Title level={4}>Select Number of Passengers</Title>
-        </div>
-      }
-      open={isPassengerModalVisible}
-      onOk={handleModalOk}
-      onCancel={() => setIsPassengerModalVisible(false)}
-      width={600}
-      className="animated-modal"
+  title={
+    <div className="text-center">
+      <Title level={4}>Select Number of Passengers</Title>
+    </div>
+  }
+  open={isPassengerModalVisible}
+  onOk={handleModalOk}
+  onCancel={() => setIsPassengerModalVisible(false)}
+  width={600}
+  className="animated-modal"
+>
+  <div className="flex justify-center mb-4">
+    <Checkbox
+      value="Luxury"
+      checked={serviceType === "Luxury"}
+      onChange={handleServiceTypeChange}
     >
-      <div className="flex justify-center mb-4">
-        <Checkbox
-          value="Luxury"
-          checked={serviceType === "Luxury"}
-          onChange={handleServiceTypeChange}
-        >
-          Luxury
-        </Checkbox>
-        <Checkbox
-          value="Premium"
-          checked={serviceType === "Premium"}
-          onChange={handleServiceTypeChange}
-        >
-          Premium
-        </Checkbox>
-      </div>
-      <div className="flex justify-center mb-4">
-        <Select
-          placeholder="Select number of passengers"
-          onChange={setPassengers}
-          style={{ width: 200 }}
-          value={passengers}
-        >
-          {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => (
-            <Option key={num} value={num}>
-              {num}
-            </Option>
-          ))}
-        </Select>
-      </div>
-      <div className="flex justify-center mb-4">
-        <DatePicker
-          placeholder="Select date"
-          onChange={handleDateChange}
-          style={{ width: 200 }}
-          value={selectedDate}
-        />
-      </div>
-      <div className="flex justify-center">
-        <TimePicker
-          placeholder="Select time"
-          onChange={handleTimeChange}
-          style={{ width: 200 }}
-          value={selectedTime}
-          format="HH:mm"
-        />
-      </div>
-    </Modal>
+      Luxury
+    </Checkbox>
+    <Checkbox
+      value="Premium"
+      checked={serviceType === "Premium"}
+      onChange={handleServiceTypeChange}
+    >
+      Premium
+    </Checkbox>
+  </div>
+  <div className="flex justify-center mb-4">
+    <Select
+      placeholder="Select number of passengers"
+      onChange={setPassengers}
+      style={{ width: 200 }}
+      value={passengers}
+    >
+      {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => (
+        <Option key={num} value={num}>
+          {num}
+        </Option>
+      ))}
+    </Select>
+  </div>
+  <div className="flex justify-center mb-4">
+    <DatePicker
+      placeholder="Select date"
+      onChange={handleDateChange}
+      style={{ width: 200 }}
+      value={selectedDate}
+    />
+  </div>
+  <div className="flex justify-center mb-4">
+    <TimePicker
+      placeholder="Select time"
+      onChange={handleTimeChange}
+      style={{ width: 200 }}
+      value={selectedTime}
+      format="HH:mm"
+    />
+  </div>
+  <div className="flex justify-center mb-4">
+    <Input
+      placeholder="Enter passenger name"
+      onChange={(e) => setPassengerName(e.target.value)}
+      style={{ width: 200 }}
+      value={passengerName}
+    />
+  </div>
+  <div className="flex justify-center mb-4">
+    <Input
+      placeholder="Enter phone number"
+      onChange={(e) => setPhoneNumber(e.target.value)}
+      style={{ width: 200 }}
+      value={phoneNumber}
+      type="tel"
+    />
+  </div>
+</Modal>
+
     </div>
   );
 };

@@ -7,12 +7,25 @@ interface User {
   name?: string;
 }
 
-
 interface UserState {
   userDetails: User;
   loginUser: (user: User) => void;
   logoutUser: () => void;
 }
+
+// Custom storage object to wrap localStorage
+const customStorage = {
+  getItem: (name: string) => {
+    const storedValue = localStorage.getItem(name);
+    return storedValue ? JSON.parse(storedValue) : null;
+  },
+  setItem: (name: string, value: any) => {
+    localStorage.setItem(name, JSON.stringify(value));
+  },
+  removeItem: (name: string) => {
+    localStorage.removeItem(name);
+  },
+};
 
 export const useUserStore = create<UserState>()(
   persist(
@@ -30,7 +43,7 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: 'user-store', // unique name for the localStorage key
-      getStorage: () => localStorage, // (optional) by default, 'localStorage' is used
+      storage: customStorage,
     }
   )
 );

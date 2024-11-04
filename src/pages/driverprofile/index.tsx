@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Tabs, Card, Avatar, Typography, Form, Input, Button, Table, Tag, Modal, message, Select, Checkbox, Row, Col, Layout, Upload } from 'antd';
+import { Tabs, Card,  Typography, Form,  Button, Table,  message, Select, Checkbox, Row, Col, Layout, Upload } from 'antd';
 import { UserOutlined, CarOutlined, SettingOutlined, PlusOutlined, BellOutlined,LogoutOutlined } from '@ant-design/icons';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 import { Image } from 'antd';
 
-import { UploadOutlined,LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
-import { Worker, Viewer } from '@react-pdf-viewer/core';
+
 import '@react-pdf-viewer/core/lib/styles/index.css';
-import PdfComp from '../../components/pdf';
+
 import { useUserStore } from '../../store/user';
 import { NotFound } from '../../components/notFound';
 import DriverPersonalModal from '../../modal/DriverPersonalModal';
@@ -36,7 +36,7 @@ console.log(userDetails)
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3000/bookings');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/bookings`);
       const filteredBookings = user.email
         ? response.data.filter((booking) => booking.driverName === user.name)
         : response.data;
@@ -52,7 +52,7 @@ console.log(userDetails)
   
  
   useEffect(() => {
-    fetch(`http://localhost:3000/driverDetails?id=${user?.email}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/driverDetails?id=${user?.email}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -95,12 +95,12 @@ console.log(userDetails)
 
 
 
-  const onFinish = (values) => {
-    console.log('Success:', values);
-    // Append files
+  // const onFinish = (values:any) => {
+  //   console.log('Success:', values);
+  //   // Append files
 
-    message.success('Profile updated successfully!');
-  };
+  //   message.success('Profile updated successfully!');
+  // };
 
  
   
@@ -155,7 +155,7 @@ console.log(userDetails)
             imageUrl:imageUrl,
             mail:user?.email}
           try {
-            fetch("http://localhost:3000/updateDriver", {
+            fetch(`${import.meta.env.VITE_API_URL}/updateDriver`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(value),

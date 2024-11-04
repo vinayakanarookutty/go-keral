@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { IndianRupee, TicketMinus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-
 import {
   Typography,
   Avatar,
@@ -26,6 +25,7 @@ import {
   RightOutlined,
   CarOutlined,
  LeftOutlined
+ ,PhoneOutlined
 } from "@ant-design/icons";
 import axios from "axios";
 import { useUserStore } from "../../store/user";
@@ -83,8 +83,8 @@ const BookingConfirmation = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalDriver, setModalDriver] = useState([]);
   const [driver, setDriver] = useState([]);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  // const [name, setName] = useState("");
+  // const [phone, setPhone] = useState("");
   const user = useUserStore((state: any) => state?.userDetails);
   useEffect(() => {
     fetchDriverDetails();
@@ -93,7 +93,7 @@ const BookingConfirmation = () => {
 
   const fetchDriverDetails = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/driverList");
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/driverList`);
       setDriverList(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Error fetching drivers:", error);
@@ -105,7 +105,7 @@ const BookingConfirmation = () => {
 
   const fetchVehicleDetails = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/getallvehicles");
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/getallvehicles`);
       setVehicleList(Array.isArray(response.data) ? response.data : []);
       console.log(vehicleList)
     } catch (error) {
@@ -163,7 +163,7 @@ const BookingConfirmation = () => {
       };
 
       const response = await axios.post(
-        "http://localhost:3000/bookings",
+        `${import.meta.env.VITE_API_URL}/bookings`,
         bookingDataToSubmit
       );
 
@@ -321,7 +321,7 @@ const BookingConfirmation = () => {
                 {/* Display the current image based on the currentImageIndex */}
                 {vehicle.vehicleImages.length > 0 && (
                   <img
-                    src={`http://localhost:3000/${vehicle.vehicleImages[currentImageIndex].path.replace(
+                    src={`${import.meta.env.VITE_API_URL}/${vehicle.vehicleImages[currentImageIndex].path.replace(
                       '\\',
                       '/'
                     )}`}
@@ -427,31 +427,50 @@ const BookingConfirmation = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8  ">
       
       {/* Box 1: Trip Route */}
-      <Card className="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-lg shadow-md ">
-        <Title level={3} className="text-center text-indigo-700 mb-4">Trip Route</Title>
-        <Timeline
-          items={[
-            {
-              dot: <EnvironmentOutlined className="text-indigo-500" />,
-              children: (
-                <div className="text-center">
-                  <Text type="secondary" className="block">From</Text>
-                  <Title level={4}>{bookingDetails.origin}</Title>
-                </div>
-              ),
-            },
-            {
-              dot: <EnvironmentOutlined className="text-purple-500" />,
-              children: (
-                <div className="text-center">
-                  <Text type="secondary" className="block">To</Text>
-                  <Title level={4}>{bookingDetails.destination}</Title>
-                </div>
-              ),
-            },
-          ]}
-        />
-      </Card>
+      <Card className="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-lg shadow-md">
+  <Title level={3} className="text-center text-indigo-700 mb-4">Trip Route</Title>
+  <Timeline
+    items={[
+      {
+        dot: <EnvironmentOutlined className="text-indigo-500" />,
+        children: (
+          <div className="text-center">
+            <Text type="secondary" className="block">From</Text>
+            <Title level={4}>{bookingDetails.origin}</Title>
+          </div>
+        ),
+      },
+      {
+        dot: <EnvironmentOutlined className="text-purple-500" />,
+        children: (
+          <div className="text-center">
+            <Text type="secondary" className="block">To</Text>
+            <Title level={4}>{bookingDetails.destination}</Title>
+          </div>
+        ),
+      },
+      {
+        dot: <UserOutlined className="text-indigo-500" />,
+        children: (
+          <div className="text-center">
+            <Text type="secondary" className="block">Passenger Name</Text>
+            <Title level={4}>{bookingDetails?.passengerName}</Title>
+          </div>
+        ),
+      },
+      {
+        dot: <PhoneOutlined className="text-purple-500" />,
+        children: (
+          <div className="text-center">
+            <Text type="secondary" className="block">Phone Number</Text>
+            <Title level={4}>{bookingDetails?.phoneNumber}</Title>
+          </div>
+        ),
+      },
+    ]}
+  />
+</Card>
+
       
       {/* Box 2: Trip Information */}
       <Card className="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg  shadow-md">
@@ -521,7 +540,7 @@ const BookingConfirmation = () => {
                     <Avatar
                       size={60}
                       icon={<UserOutlined />}
-                      src={`http://localhost:3000/${selectedDriver?.vehicleImages[0].path.replace('\\', '/')}`}
+                      src={`${import.meta.env.VITE_API_URL}/${selectedDriver?.vehicleImages[0].path.replace('\\', '/')}`}
                       className="bg-gradient-to-r from-indigo-500 to-purple-500"
                     />
                     <div>

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Tabs, Card, Avatar, Typography, Form, Input, Button, Table, Tag, Modal, message, Select, Checkbox, Row, Col, Layout, Upload } from 'antd';
-import { UserOutlined, CarOutlined, SettingOutlined, PlusOutlined, BellOutlined } from '@ant-design/icons';
+import  { useEffect, useState } from 'react';
+import { Tabs, Card, Avatar, Typography, Button, Table,  message,  Layout, } from 'antd';
+import { UserOutlined, CarOutlined, SettingOutlined, BellOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 import { Image } from 'antd';
 import PdfComp from '../../components/pdf';
@@ -19,13 +19,13 @@ export default function AdminProfile() {
   const [userDetails, setUserDetails] = useState({});
   const [userList, setUserList] = useState([]);
   const [driverList, setDriverList] = useState([]);
-  const [form] = Form.useForm();
+
   const location = useLocation();
   const { email } = location.state || {};
   const [vehicles, setVehicles] = useState([]);
   const [pdfFile, setPdfFile] = useState(null);
   const [bookings, setBookings] = useState([]);
-  const [quotations, setQuotations] = useState<Quotation[]>([]);
+  const [quotations, setQuotations] = useState([]);
 
   useEffect(() => {
     fetchBookings();
@@ -36,7 +36,7 @@ export default function AdminProfile() {
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3000/bookings');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/bookings`);
       setBookings(response.data);
     } catch (error) {
       console.error('Error fetching bookings:', error);
@@ -49,7 +49,7 @@ export default function AdminProfile() {
   
   const fetchVehicles = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/getvehicles');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/getvehicles`);
       console.log('Fetched Vehicles:', response.data); // Check the structure
       const data = Array.isArray(response.data) ? response.data : [];
       setVehicles(data);
@@ -60,10 +60,9 @@ export default function AdminProfile() {
       setLoading(false);
     }
   };
-  const handleFileClick = async (filePath) => {
-    console.log("haiiii")
-    setPdfFile(`http://localhost:3000/${filePath}`);
-    const response = await fetch(`http://localhost:3000/${filePath}`);
+  const handleFileClick = async (filePath:any) => {
+    setPdfFile(`${import.meta.env.VITE_API_URL}/${filePath}`);
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/${filePath}`);
   
     if (response.ok) {
       const blob = await response.blob();
@@ -77,7 +76,7 @@ export default function AdminProfile() {
   const fetchQuotations = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3000/quatations');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/quatations`);
       setQuotations(response.data);
     } catch (error) {
       console.error('Error fetching quotations:', error);
@@ -97,7 +96,7 @@ export default function AdminProfile() {
       title: 'Driving Licence',
       dataIndex: 'Driving_Licence',
       key: 'Driving_Licence',
-      render: (text, record) => (
+      render: (text:any, record:any) => (
         <Button onClick={() => handleFileClick(record.Driving_Licence)}>
           View Driving Licence
         </Button>
@@ -107,7 +106,7 @@ export default function AdminProfile() {
       title: 'Vehicle Insurance Proof',
       dataIndex: 'Vehicle_Insurance_Proof',
       key: 'Vehicle_Insurance_Proof',
-      render: (text, record) => (
+      render: (text:any, record:any) => (
         <Button onClick={() => handleFileClick(record.Vehicle_Insurance_Proof)}>
           View Insurance
         </Button>
@@ -117,7 +116,7 @@ export default function AdminProfile() {
       title: 'Proof Of Address',
       dataIndex: 'Proof_Of_Address',
       key: 'Proof_Of_Address',
-      render: (text, record) => (
+      render: (text:any, record:any) => (
         <Button onClick={() => handleFileClick(record.Proof_Of_Address)}>
           View Address Proof
         </Button>
@@ -127,7 +126,7 @@ export default function AdminProfile() {
       title: 'Police Clearance Certificate',
       dataIndex: 'Police_Clearance_Certificate',
       key: 'Police_Clearance_Certificate',
-      render: (text, record) => (
+      render: (text:any, record:any) => (
         <Button onClick={() => handleFileClick(record.Police_Clearance_Certificate)}>
           View Police Certificate
         </Button>
@@ -140,7 +139,7 @@ export default function AdminProfile() {
   useEffect(() => {
     fetchProfileDetails()
     fetchDriverDetails()
-    fetch(`http://localhost:3000/adminDetails?id=${email}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/adminDetails?id=${email}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -161,7 +160,7 @@ export default function AdminProfile() {
 
   const fetchProfileDetails = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/userList');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/userList`);
       console.log('Fetched UserList:', response.data); // Check the structure
       const data = Array.isArray(response.data) ? response.data : [];
       setUserList(data)
@@ -176,7 +175,7 @@ export default function AdminProfile() {
 
   const fetchDriverDetails = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/driverList');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/driverList`);
       console.log('Fetched DriverList:', response.data); // Check the structure
       const data = Array.isArray(response.data) ? response.data : [];
       setDriverList(data)
@@ -220,7 +219,7 @@ const columns = [
     {
       title: 'Sl No', 
       key: 'slNo',
-      render: (text, record, index) => index + 1, // Auto-increment Sl No
+      render: (text:any, record:any, index :any) => index + 1, // Auto-increment Sl No
     },
     { 
       title: 'Id', 
@@ -280,7 +279,7 @@ const columns = [
   ];
   
   // Utility function to format date
-  const formatDate = (dateString) => {
+  const formatDate = (dateString:any) => {
     if (!dateString) return ''; // Handle empty date
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
@@ -539,42 +538,7 @@ const columns = [
       {/* Vehicle Modal */}
    
 
-      {/* Custom styles */}
-      <style jsx global>{`
-        .ant-tabs-nav {
-          margin-bottom: 24px !important;
-        }
-        
-        .ant-tabs-tab {
-          padding: 12px 24px !important;
-          margin: 0 !important;
-        }
-
-        .ant-tabs-tab-active {
-          background: rgba(59, 130, 246, 0.1);
-          border-radius: 8px;
-        }
-
-        .ant-card {
-          border-radius: 12px;
-        }
-
-        .ant-input, .ant-input-textarea, .ant-select-selector, .ant-btn {
-          border-radius: 8px !important;
-        }
-
-        .custom-table .ant-table {
-          background: transparent;
-        }
-
-        .ant-table-thead > tr > th {
-          background: #f8fafc !important;
-        }
-
-        .full-width-tabs .ant-tabs-nav::before {
-          border: none !important;
-        }
-      `}</style>
+      
     </Layout>
   );
 }

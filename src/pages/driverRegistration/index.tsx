@@ -14,7 +14,7 @@ export function DriverRegistrationPage() {
   const onFinish = (values) => {
     console.log('Success:', values);
     message.success('Registration successful!');
-    fetch('http://localhost:3000/driversignup', {
+    fetch(`${import.meta.env.VITE_API_URL}/driversignup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
