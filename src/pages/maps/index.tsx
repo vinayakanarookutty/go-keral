@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Map, { Source, Layer, Marker, Popup } from 'react-map-gl';
-import { AutoComplete,  Radio, Typography, Button, Modal, Form, Input, message,Card,Checkbox,Select,DatePicker, TimePicker } from 'antd';
+import { AutoComplete,  Radio, Typography, Button, Modal,  Input, message,Card,Checkbox,Select,DatePicker, TimePicker } from 'antd';
 import { EnvironmentFilled, } from '@ant-design/icons';
 import axios from 'axios';
-import { useUserStore } from '../../store/user';
+
 import { useNavigate } from 'react-router-dom';
 
 const { Option } = AutoComplete;
@@ -62,11 +62,11 @@ const Maps: React.FC = () => {
   const [selectedTime, setSelectedTime] = useState(null);
 
 
-  const handleDateChange = (date) => {
+  const handleDateChange = (date:any) => {
     setSelectedDate(date);
   };
 
-  const handleTimeChange = (time) => {
+  const handleTimeChange = (time:any) => {
     setSelectedTime(time);
   };
   useEffect(() => {
@@ -184,7 +184,7 @@ const Maps: React.FC = () => {
  
   const [isPassengerModalVisible, setIsPassengerModalVisible] = useState(false);
   const [passengers, setPassengers] = useState(1);
-  const [modalAnimationKey, setModalAnimationKey] = useState(0);
+  
 
 
 
@@ -197,7 +197,7 @@ const Maps: React.FC = () => {
     setIsPassengerModalVisible(true);
   };
   const [serviceType, setServiceType] = useState(null);
-  const handleServiceTypeChange = (e) => {
+  const handleServiceTypeChange = (e:any) => {
     setServiceType(e.target.checked ? e.target.value : null);
   };
   const handleModalOk = () => {
@@ -236,57 +236,11 @@ const Maps: React.FC = () => {
 
 
 
-  const VehicleAnimation = ({ passengers }: { passengers: number }) => {
-    const getVehicleSize = () => {
-      if (passengers <= 2) return { width: 48, height: 48 };
-      if (passengers <= 4) return { width: 64, height: 64 };
-      return { width: 80, height: 80 };
-    };
-
-    return (
-      <div className="flex justify-center my-4">
-        <Car
-          {...getVehicleSize()}
-          className="animate-pulse"
-          style={{
-            color: passengers <= 4 ? '#1890ff' : '#f5222d',
-            transition: 'all 0.3s ease'
-          }}
-        />
-      </div>
-    );
-  };
-  const PassengerAnimation = ({ count }: { count: number }) => {
-    const getPassengerColor = (index: number) => {
-      const colors = ['#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1'];
-      return colors[index % colors.length];
-    };
-
-
-    return (
-      <div className="flex flex-wrap justify-center gap-4 p-4 transition-all duration-500">
-        {[...Array(count)].map((_, index) => (
-          <Users
-            key={index}
-            size={48}
-            className="animate-bounce"
-            style={{
-              color: getPassengerColor(index),
-              animationDelay: `${index * 0.2}s`,
-              animationDuration: '1s'
-            }}
-          />
-        ))}
-      </div>
-    );
-  };
 
   const handleBookRoute = () => {
     if (selectedRouteIndex !== null) {
-      const selectedRoute = routes[selectedRouteIndex];
-      const distance = selectedRoute.distance / 1000; // Convert to kilometers
-      const premiumPrice = calculatePrice(distance, 'premium');
-      const luxuryPrice = calculatePrice(distance, 'luxury');
+     
+  
       showPassengerModal()
       // const bookingDetails = {
       //   origin,
@@ -347,7 +301,7 @@ const Maps: React.FC = () => {
             onMove={(evt) => setViewState(evt.viewState)}
             mapboxAccessToken={mapboxToken}
             mapStyle="mapbox://styles/vinayak1937/cm0rtfeki00mr01pbgjerd69p"
-            className="w-full h-full"
+            
           >
             {pins.map((pin) => (
               <Marker key={pin._id} longitude={pin.longitude} latitude={pin.latitude}>

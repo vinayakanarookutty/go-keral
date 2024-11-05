@@ -3,7 +3,7 @@ import { Tabs, Card, Avatar, Typography, Button, Table,  message,  Layout, } fro
 import { UserOutlined, CarOutlined, SettingOutlined, BellOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 import { Image } from 'antd';
-import PdfComp from '../../components/pdf';
+
 
 import axios from 'axios';
 
@@ -15,14 +15,55 @@ import '@react-pdf-viewer/core/lib/styles/index.css';
 
 
 export default function AdminProfile() {
+  interface PersonalInformation {
+    dob: string;
+    address: string;
+  }
+  interface Vehicle {
+    id: string;
+    _id: string;
+    email:string;
+    name:string;
+    model: string;
+    make: string;
+    year: string;
+    imageUrl: string;
+    phone:string;
+    address:string;
+    licensePlate: string;
+    seatsNo: number;
+    vehicleClass: string;
+    vehicleImages: Array<{
+      path: string;
+      originalname: string;
+    }>;
+  }
+  interface UserDetails {
+    _id: string;
+    name: string;
+    email: string;
+    phone: number;
+    password: string;
+    agreement: boolean;
+    drivinglicenseNo: string;
+    __v: number;
+    imageUrl: string;
+    personalInformation: PersonalInformation;
+    languages: string[];
+    area: string;
+    certifications: string[];
+    emergencyContact: string;
+    mail: string;
+  }
   const [loading, setLoading] = useState(true);
-  const [userDetails, setUserDetails] = useState({});
-  const [userList, setUserList] = useState([]);
-  const [driverList, setDriverList] = useState([]);
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  
+  const [userList, setUserList] = useState<UserDetails[] | null>([]);
+  const [driverList, setDriverList] = useState<Vehicle[] | null>([]);
 
   const location = useLocation();
   const { email } = location.state || {};
-  const [vehicles, setVehicles] = useState([]);
+  const [vehicles, setVehicles] = useState<Vehicle[] | null>([]);
   const [pdfFile, setPdfFile] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [quotations, setQuotations] = useState([]);
@@ -61,7 +102,8 @@ export default function AdminProfile() {
     }
   };
   const handleFileClick = async (filePath:any) => {
-    setPdfFile(`${import.meta.env.VITE_API_URL}/${filePath}`);
+    setPdfFile(`${import.meta.env.VITE_API_URL}/${filePath}` as unknown as null);
+
     const response = await fetch(`${import.meta.env.VITE_API_URL}/${filePath}`);
   
     if (response.ok) {
@@ -96,7 +138,7 @@ export default function AdminProfile() {
       title: 'Driving Licence',
       dataIndex: 'Driving_Licence',
       key: 'Driving_Licence',
-      render: (text:any, record:any) => (
+      render: ( record:any) => (
         <Button onClick={() => handleFileClick(record.Driving_Licence)}>
           View Driving Licence
         </Button>
@@ -106,7 +148,7 @@ export default function AdminProfile() {
       title: 'Vehicle Insurance Proof',
       dataIndex: 'Vehicle_Insurance_Proof',
       key: 'Vehicle_Insurance_Proof',
-      render: (text:any, record:any) => (
+      render: ( record:any) => (
         <Button onClick={() => handleFileClick(record.Vehicle_Insurance_Proof)}>
           View Insurance
         </Button>
@@ -116,7 +158,7 @@ export default function AdminProfile() {
       title: 'Proof Of Address',
       dataIndex: 'Proof_Of_Address',
       key: 'Proof_Of_Address',
-      render: (text:any, record:any) => (
+      render: ( record:any) => (
         <Button onClick={() => handleFileClick(record.Proof_Of_Address)}>
           View Address Proof
         </Button>
@@ -126,7 +168,7 @@ export default function AdminProfile() {
       title: 'Police Clearance Certificate',
       dataIndex: 'Police_Clearance_Certificate',
       key: 'Police_Clearance_Certificate',
-      render: (text:any, record:any) => (
+      render: ( record:any) => (
         <Button onClick={() => handleFileClick(record.Police_Clearance_Certificate)}>
           View Police Certificate
         </Button>
@@ -219,7 +261,7 @@ const columns = [
     {
       title: 'Sl No', 
       key: 'slNo',
-      render: (text:any, record:any, index :any) => index + 1, // Auto-increment Sl No
+      render: ( index :any) => index + 1, // Auto-increment Sl No
     },
     { 
       title: 'Id', 
@@ -243,11 +285,14 @@ const columns = [
     },
   ];
 
+ 
+  
+
   const columnsQuotation = [
     {
       title: 'Sl No',
       key: 'slNo',
-      render: (text, record, index) => index + 1, // Auto-increment Sl No
+      render: (  index: any) => index + 1 // Use `_` as a placeholder
     },
     {
       title: 'Customer Name',
@@ -258,13 +303,13 @@ const columns = [
       title: 'Booking Date From',
       dataIndex: 'bookingDatefrom',
       key: 'bookingDatefrom',
-      render: (date) => formatDate(date), // Format date
+      render: (date:any) => formatDate(date), // Format date
     },
     {
       title: 'Booking Date To',
       dataIndex: 'bookingDateto',
       key: 'bookingDateto',
-      render: (date) => formatDate(date), // Format date
+      render: (date:any) => formatDate(date), // Format date
     },
     {
       title: 'Price',
@@ -492,7 +537,7 @@ const columns = [
           {/* <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.15.349/build/pdf.worker.min.js">
   <Viewer fileUrl={pdfFile} />
 </Worker> */}
-  <PdfComp pdfFile={pdfFile}/>
+  
   
           </div>
         </div>

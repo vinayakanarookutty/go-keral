@@ -34,34 +34,68 @@ const { Title, Text } = Typography;
 
 interface BookingDetails {
   origin: string;
+  phoneNumber:string;
+  passengers:string;
   destination: string;
   distance: number;
+  address:string;
   duration: number;
   serviceType?: string;
   luxuryPrice?: number;
   premiumPrice?: number;
   selectedDate?: string;
   selectedTime?: string;
+  passengerName?:string;
+
+}
+
+interface PersonalInformation {
+  dob?: string;
+  address?: string;
+  languages?: string[];
+  certifications?: string[];
 }
 
 interface Driver {
-  id: number;
+  availability:string;
+  _id: string;
+  id:string;
+  model:string;
   name: string;
-  rating: number;
-  experience: number;
-  imageUrl?: string;
-  languages?: string;
-  licenseType?: string;
-  phoneNumber?: string;
-  vehicleDetails?: {
-    model: string;
-    year: string;
-    plateNumber: string;
-  };
-  completedTrips?: number;
-  availability?: string;
-  preferredRoutes?: string[];
-  safetyRating?: number;
+  email: string;
+  phone: number;
+  address:string;
+  password: string;
+  agreement: boolean;
+  drivinglicenseNo: string;
+  __v: number;
+  imageUrl: string;
+  personalInformation: PersonalInformation;
+  languages: string[];
+  area: string;
+  certifications: string[];
+  emergencyContact: string;
+  mail: string;
+}
+
+interface Vehicle {
+  id: string;
+  _id: string;
+  email:string;
+  name:string;
+  model: string;
+  make: string;
+  year: string;
+  imageUrl: string;
+  phone:string;
+  address:string;
+  licensePlate: string;
+  seatsNo: number;
+  vehicleClass: string;
+  vehicleImages: Array<{
+    path: string;
+    originalname: string;
+  }>;
 }
 
 const BookingConfirmation = () => {
@@ -76,13 +110,13 @@ const BookingConfirmation = () => {
 
   const [loading, setLoading] = useState(true);
   const [driverList, setDriverList] = useState<Driver[]>([]);
-  const [vehicleList, setVehicleList] = useState([]);
-  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
+  const [vehicleList, setVehicleList] = useState<Vehicle[]>([]);
+  const [selectedDriver, setSelectedDriver] = useState<Vehicle | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentStep, setCurrentStep] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalDriver, setModalDriver] = useState([]);
-  const [driver, setDriver] = useState([]);
+  const [modalDriver, setModalDriver] = useState<Driver[] >([]);
+  const [driver, setDriver] = useState<Vehicle[] | Driver[]>([]);
   // const [name, setName] = useState("");
   // const [phone, setPhone] = useState("");
   const user = useUserStore((state: any) => state?.userDetails);
@@ -116,21 +150,21 @@ const BookingConfirmation = () => {
     }
   };
 
-  const handleDriverSelect = (driver: Driver) => {
+  const handleDriverSelect = (driver: Vehicle) => {
     setSelectedDriver(driver);
-    const filterByEmail = (email) => {
+    const filterByEmail = (email:any) => {
       return driverList.filter(user => user.email === email);
     };
     
     const result = filterByEmail(driver.email);
     console.log(result)
-    setDriver(result)
+    setDriver(result )
   };
 
   const showDriverModal = (driver: Driver, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent the card click event from firing
   
-    const filterByEmail = (email) => {
+    const filterByEmail = (email:any) => {
       return driverList.filter(user => user.email === email);
     };
     
@@ -142,7 +176,7 @@ const BookingConfirmation = () => {
 
   const handleModalClose = () => {
     setIsModalVisible(false);
-    setModalDriver(null);
+    setModalDriver([]);
   };
 
   const confirmBooking = async () => {
@@ -153,7 +187,16 @@ const BookingConfirmation = () => {
 
     setLoading(true);
     try {
-      const bookingDataToSubmit = {
+      interface BookingData {
+        user: string;
+        driverId: string;
+        driverName: string;
+        vehicleName: string;
+        vehicleId: string;
+        [key: string]: any; // To allow other dynamic properties from bookingDetails
+      }
+      
+      const bookingDataToSubmit:BookingData = {
         ...bookingDetails,
         user:user.email,
         driverId: driver[0].id,
@@ -183,9 +226,7 @@ const BookingConfirmation = () => {
     }
   };
 
-  const filteredDrivers = driverList?.filter((driver) =>
-    driver.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+ 
 
   const renderDriverModal = () => {
     if (!modalDriver) return null;
@@ -204,7 +245,7 @@ const BookingConfirmation = () => {
             type="primary"
             className="bg-indigo-500 hover:bg-indigo-600"
             onClick={() => {
-              handleDriverSelect(modalDriver);
+              handleDriverSelect(modalDriver as unknown as Vehicle);
               handleModalClose();
             }}
           >
@@ -224,8 +265,8 @@ const BookingConfirmation = () => {
             <div>
               <Title level={3} className="mb-2">{modalDriver[0]?.name}</Title>
           
-              <Badge status={modalDriver?.availability === 'Available' ? 'success' : 'warning'} 
-                text={modalDriver?.availability || 'Available'} 
+              <Badge
+                text={ 'Available'} 
                 className="ml-4" 
               />
             </div>
@@ -254,18 +295,18 @@ const BookingConfirmation = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Text type="secondary">Completed Trips</Text>
-                <div className="text-lg font-semibold">{modalDriver?.completedTrips || '250'}+</div>
+                <div className="text-lg font-semibold">{ '250'}+</div>
               </div>
               <div>
                 <Text type="secondary">Safety Rating</Text>
                 <div className="text-lg font-semibold">
-                  <Rate disabled defaultValue={modalDriver?.safetyRating || 4.8} className="text-green-500" />
+                  <Rate disabled defaultValue={4.8} className="text-green-500" />
                 </div>
               </div>
             </div>
           </Card>
 
-          {modalDriver?.preferredRoutes && (
+          {/* {modalDriver?.preferredRoutes && (
             <div>
               <Text type="secondary">Preferred Routes</Text>
               <div className="flex flex-wrap gap-2 mt-2">
@@ -276,7 +317,7 @@ const BookingConfirmation = () => {
                 ))}
               </div>
             </div>
-          )}
+          )} */}
         </div>
       </Modal>
     );
@@ -294,14 +335,14 @@ const BookingConfirmation = () => {
         // Function to go to the next image
         const nextImage = () => {
           setCurrentImageIndex((prevIndex) =>
-            prevIndex === vehicle.vehicleImages.length - 1 ? 0 : prevIndex + 1
+            prevIndex === vehicle?.vehicleImages.length - 1 ? 0 : prevIndex + 1
           );
         };
   
         // Function to go to the previous image
         const prevImage = () => {
           setCurrentImageIndex((prevIndex) =>
-            prevIndex === 0 ? vehicle.vehicleImages.length - 1 : prevIndex - 1
+            prevIndex === 0 ? vehicle?.vehicleImages.length - 1 : prevIndex - 1
           );
         };
   
@@ -310,22 +351,22 @@ const BookingConfirmation = () => {
             key={vehicle.id}
             hoverable
             className={`transform transition-all duration-300 hover:scale-105 ${
-              selectedDriver?.id === vehicle.id
+              selectedDriver?.id === vehicle?.id
                 ? 'shadow-lg border-purple-700'
                 : 'hover:shadow-xl'
             }`}
-            onClick={() => handleDriverSelect(vehicle)}
+            onClick={() => handleDriverSelect(vehicle )}
           >
             <div className="text-center">
               <div className="relative inline-block w-full">
                 {/* Display the current image based on the currentImageIndex */}
                 {vehicle.vehicleImages.length > 0 && (
                   <img
-                    src={`${import.meta.env.VITE_API_URL}/${vehicle.vehicleImages[currentImageIndex].path.replace(
+                    src={`${import.meta.env.VITE_API_URL}/${vehicle?.vehicleImages[currentImageIndex].path.replace(
                       '\\',
                       '/'
                     )}`}
-                    alt={vehicle.vehicleImages[currentImageIndex].originalname}
+                    alt={vehicle?.vehicleImages[currentImageIndex].originalname}
                     style={{ width: '100%', height: '150px', objectFit: 'cover' }}
                     className="rounded-lg"
                   />
@@ -370,7 +411,7 @@ const BookingConfirmation = () => {
                 </div>
                 <Button
                   type="link"
-                  onClick={(e) => showDriverModal(vehicle, e)}
+                  onClick={(e) => showDriverModal(vehicle as unknown as Driver, e)}
                   className="text-indigo-500 hover:text-indigo-600"
                 >
                   View Details
@@ -410,6 +451,7 @@ const BookingConfirmation = () => {
                 placeholder="Search drivers by name"
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="mb-8"
+                value={searchTerm}
                 size="large"
               />
               {loading ? (

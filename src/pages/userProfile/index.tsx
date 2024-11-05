@@ -20,6 +20,7 @@ interface UserDetails {
 }
 
 interface Booking {
+  user:any,
   origin: string;
   destination: string;
   distance: string;
@@ -76,9 +77,7 @@ export default function UserProfile() {
       });
   }, []);
 
-  const onFinish = (values: any) => {
-    message.success('Profile updated successfully!');
-  };
+ 
 
   const columns2 = [
     { title: 'Origin', dataIndex: 'origin', key: 'origin' },
@@ -107,7 +106,7 @@ export default function UserProfile() {
     return isJpgOrPng && isLt2M;
   };
 
-  const handleChange: UploadProps['onChange'] = (info) => {
+  const handleChange = (info:any) => {
     if (info.file.status === 'done') {
       getBase64(info.file.originFileObj as File, (url) => {
         setLoading(false);

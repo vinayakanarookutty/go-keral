@@ -3,7 +3,6 @@ import Map, { Source, Layer, Marker ,Popup} from 'react-map-gl';
 import { AutoComplete,  Card, Radio, Space, Typography, Button, Modal, Form, Input, message } from 'antd';
 import { EnvironmentTwoTone } from '@ant-design/icons';
 import axios from 'axios';
-import { useUserStore } from '../../store/user';
 import { EnvironmentFilled } from '@ant-design/icons';
 import {  Rate } from 'antd';
 const { Option } = AutoComplete;
@@ -156,7 +155,7 @@ const Maps: React.FC = () => {
     }
   };
 
-  const handleBookingSubmit = async (values: any) => {
+  const handleBookingSubmit = async () => {
     try {
       // Here you would typically send a request to your backend to process the booking
       // For this example, we'll just simulate a successful booking
@@ -165,7 +164,7 @@ const Maps: React.FC = () => {
       message.success('Booking successful!');
       setIsBookingModalVisible(false);
       form.resetFields();
-    } catch (error) {
+    } catch (error:any) {
       message.error('Booking failed. Please try again.');
     }
   };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Tabs, Card,  Typography, Form,  Button, Table,  message, Select, Checkbox, Row, Col, Layout, Upload } from 'antd';
 import { UserOutlined, CarOutlined, SettingOutlined, PlusOutlined, BellOutlined,LogoutOutlined } from '@ant-design/icons';
 import {  useNavigate } from 'react-router-dom';
@@ -19,10 +19,32 @@ import DriverAddVehicleModal from '../../modal/DriverVehicleModal';
 
 
 export default function DriverProfile() {
-
- 
-  const [userDetails, setUserDetails] = useState({});
- 
+  interface PersonalInformation {
+    dob: string;
+    address: string;
+  }
+  
+  interface UserDetails {
+    _id: string;
+    name: string;
+    email: string;
+    phone: number;
+    password: string;
+    agreement: boolean;
+    drivinglicenseNo: string;
+    __v: number;
+    imageUrl: string;
+    personalInformation: PersonalInformation;
+    languages: string[];
+    area: string;
+    certifications: string[];
+    emergencyContact: string;
+    mail: string;
+  }
+  
+  
+    const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  
   const navigate = useNavigate();
 
   const [bookings, setBookings] = useState([]);
@@ -38,7 +60,7 @@ console.log(userDetails)
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/bookings`);
       const filteredBookings = user.email
-        ? response.data.filter((booking) => booking.driverName === user.name)
+        ? response.data.filter((booking:any) => booking.driverName === user.name)
         : response.data;
   
       setBookings(filteredBookings);
@@ -119,12 +141,11 @@ console.log(userDetails)
     
   ];
 
-  const handleUpload = (info, setFileList) => {
-    const { fileList } = info;
-    setFileList(fileList.slice(-1)); // Only keep the last file
-  };
-  type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
+  
 
+
+  type FileType = File;
+  
   const getBase64 = (img: FileType, callback: (url: string) => void) => {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result as string));
@@ -138,14 +159,14 @@ console.log(userDetails)
     }
     const isLt2M = file.size / 1024 / 1024 < 2;
     if (!isLt2M) {
-      message.error('Image must smaller than 2MB!');
+      message.error('Image must be smaller than 2MB!');
     }
     return isJpgOrPng && isLt2M;
   };
-
-    const [imageUrl, setImageUrl] = useState<string>();
   
-    const handleChange: UploadProps['onChange'] = (info) => {
+  const [imageUrl, setImageUrl] = useState<string | undefined>();
+  
+    const handleChange= (info:any) => {
      
         // Get this url from response in real world.
         getBase64(info.file.originFileObj as FileType, (url) => {

@@ -1,24 +1,96 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { Form, Input, Button, Table, Modal, Select, Row, Col, Upload, message } from 'antd';
 import { PlusOutlined, UploadOutlined, EditOutlined, PictureOutlined, DeleteOutlined } from '@ant-design/icons';
 const { Dragger } = Upload;
 import axios from 'axios';
+import { UploadFile, UploadFileStatus } from 'antd/es/upload/interface';
 import { useUserStore } from '../../store/user';
+interface Vehicle {
+  id: string;
+  _id: string;
+  email:string;
+  name:string;
+  model: string;
+  make: string;
+  year: string;
+  imageUrl: string;
+  phone:string;
+  address:string;
+  licensePlate: string;
+  seatsNo: number;
+  vehicleClass: string;
+  vehicleImages: Array<{
+    path: string;
+    originalname: string;
+  }>;
+}
+interface DocumentUpload extends UploadFile {
+  status: UploadFileStatus; // Restrict status to UploadFileStatus
+  url: string;              // You can retain custom fields as needed
+  response: Object;
+}
+
+interface VehicleImage {
+  url: string; // URL or path to the vehicle image
+  response:any;
+  originFileObj:any;
+}
+
+interface VehicleImageUrl {
+  url: string; // URL or path to the vehicle image
+
+}
+
+interface Vehicle {
+  _id: string; // Unique identifier for the vehicle
+  make: string; // Make of the vehicle
+  model: string; // Model of the vehicle
+   // Year of manufacture
+  licensePlate: string; // License plate number
+  vehicleType: string; // Type of vehicle (e.g., "cars")
+   // Number of seats
+  vehicleClass: string; // Class of vehicle (e.g., "Premium")
+  existing_vehicleImages: VehicleImage[]; // Array of existing vehicle images
+  documents: {
+    Driving_Licence: DocumentUpload; // Driving license document
+    Vehicle_Insurance_Proof: DocumentUpload; // Vehicle insurance proof
+    Proof_Of_Address: DocumentUpload; // Proof of address
+    Police_Clearance_Certificate: DocumentUpload; // Police clearance certificate
+  };
+  // Array of additional vehicle images
+  __v: number; // Version key for Mongoose
+  email: string; // Email associated with the vehicle
+  existing_Driving_Licence: string; // Path to existing driving license
+  existing_Police_Clearance_Certificate: string; // Path to existing police clearance certificate
+  existing_Proof_Of_Address: string; // Path to existing proof of address
+  existing_Vehicle_Insurance_Proof: string; // Path to existing vehicle insurance proof
+}
 
 function DriverAddVehicleModal() {
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [fileList1, setFileList1] = useState([]);
-  const [fileList2, setFileList2] = useState([]);
-  const [fileList3, setFileList3] = useState([]);
-  const [fileList4, setFileList4] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
+  const [fileList1, setFileList1] = useState<DocumentUpload[]  | VehicleImageUrl >([]);
+  const [fileList2, setFileList2] = useState<DocumentUpload[] >([]);
+  const [fileList3, setFileList3] = useState<DocumentUpload[] >([]);
+  const [fileList4, setFileList4] = useState<DocumentUpload[] >([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
-  const [vehicleImages, setVehicleImages] = useState([]);
+  const [vehicleImages, setVehicleImages] = useState<VehicleImage[]>([]);
   const [form] = Form.useForm();
-  const [editingVehicle, setEditingVehicle] = useState(null);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle>();
+
+  
+
+interface DocumentUpload {
+  uid: string;
+  name: string;
+  length?:string;
+  status: UploadFileStatus;  // Change this to UploadFileStatus, not just string
+  url: string;
+  response: Object;
+}
 
   const vehicleTypes = [
     { label: 'Cars', value: 'cars' },
@@ -45,7 +117,7 @@ function DriverAddVehicleModal() {
     }
   };
 
-  const getBase64 = (file) => {
+  const getBase64 = (file:any) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -54,10 +126,10 @@ function DriverAddVehicleModal() {
     });
   };
 
-  const handleUpload = async (info, setFileList) => {
+  const handleUpload = async (info:any, setFileList:any) => {
     const { fileList } = info;
     const newFileList = await Promise.all(
-      fileList.map(async (file) => {
+      fileList.map(async (file:any) => {
         if (!file.url && !file.preview) {
           file.preview = await getBase64(file.originFileObj);
         }
@@ -67,7 +139,7 @@ function DriverAddVehicleModal() {
     setFileList(newFileList);
   };
 
-  const handlePreview = async (file) => {
+  const handlePreview = async (file:any) => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
     }
@@ -76,7 +148,7 @@ function DriverAddVehicleModal() {
     setPreviewVisible(true);
   };
 
-  const showModal = (vehicle = null) => {
+  const showModal = (vehicle:any) => {
     setEditingVehicle(vehicle);
     if (vehicle) {
       form.setFieldsValue({
@@ -132,7 +204,7 @@ function DriverAddVehicleModal() {
 
       // Handle existing vehicle images
       if (vehicle.vehicleImages && vehicle.vehicleImages.length > 0) {
-        const existingImages = vehicle.vehicleImages.map((img, index) => ({
+        const existingImages = vehicle.vehicleImages.map((img:any, index:any) => ({
           uid: `-${index}`,
           name: img.originalname,
           status: 'done',
@@ -163,7 +235,7 @@ function DriverAddVehicleModal() {
       });
 
       // Handle documents
-      const appendDocument = (fileList, fieldName) => {
+      const appendDocument = (fileList:any, fieldName:any) => {
         if (fileList.length > 0) {
           if (fileList[0].originFileObj) {
             // New file uploaded
@@ -182,19 +254,19 @@ function DriverAddVehicleModal() {
 
       // Handle vehicle images
       const existingImages = vehicleImages
-        .filter(file => file.response?.path)
-        .map(file => file.response.path);
+        .filter(file => file?.response?.path)
+        .map(file => file?.response.path);
       
       formData.append('existing_vehicleImages', JSON.stringify(existingImages));
       formData.append('email',user?.email)
       vehicleImages
-        .filter(file => file.originFileObj)
+        .filter(file => file?.originFileObj)
         .forEach(file => {
-          formData.append('vehicleImages', file.originFileObj);
+          formData.append('vehicleImages', file?.originFileObj);
         });
 
       const url = editingVehicle 
-        ? `${import.meta.env.VITE_API_URL}/updatevehicle/${editingVehicle._id}`
+        ? `${import.meta.env.VITE_API_URL}/updatevehicle/${editingVehicle?._id}`
         : `${import.meta.env.VITE_API_URL}/addvehicles`;
 
       const response = await fetch(url, {
@@ -228,7 +300,7 @@ function DriverAddVehicleModal() {
     setVehicleImages([]);
   };
 
-  const handleImageUpload = ({ fileList }) => {
+  const handleImageUpload = ({ fileList }:any) => {
     setVehicleImages(fileList);
   };
 
@@ -239,7 +311,7 @@ function DriverAddVehicleModal() {
   }));
 
 
-  const deleteVehicle = async (vehicleId) => {
+  const deleteVehicle = async (vehicleId:any) => {
     console.log(vehicleId)
     if (!window.confirm('Are you sure you want to delete this vehicle? This action cannot be undone.')) return;
 
@@ -247,7 +319,7 @@ function DriverAddVehicleModal() {
       await axios.delete(`${import.meta.env.VITE_API_URL}/deletevehicle/${vehicleId}`);
       
       // Remove the vehicle from the UI after successful deletion
-      setVehicles((prevVehicles) => prevVehicles.filter((vehicle) => vehicle._id !== vehicleId));
+      setVehicles((prevVehicles:any) => prevVehicles.filter((vehicle:any) => vehicle._id !== vehicleId));
       alert('Vehicle deleted successfully.');
     } catch (error) {
       console.error('Error deleting vehicle:', error);
@@ -266,7 +338,7 @@ function DriverAddVehicleModal() {
     {
       title: 'Documents',
       key: 'documents',
-      render: (_, record) => (
+      render: ( record:any) => (
         <Row gutter={[8, 8]}>
           {record.documents?.Driving_Licence && (
             <Col>
@@ -302,9 +374,9 @@ function DriverAddVehicleModal() {
     {
       title: 'Images',
       key: 'images',
-      render: (_, record) => (
+      render: ( record:any) => (
         <Row gutter={[8, 8]}>
-          {record.vehicleImages?.map((image, index) => (
+          {record.vehicleImages?.map((image:any, index:any) => (
             <Col key={index}>
               <Button size="small" onClick={() => window.open(`${import.meta.env.VITE_API_URL}/${image.path}`, '_blank')}>
                 Image {index + 1}
@@ -317,7 +389,7 @@ function DriverAddVehicleModal() {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_, record) => (
+      render: ( record:any) => (
         <>
         <Button
           icon={<EditOutlined />}
@@ -473,7 +545,7 @@ function DriverAddVehicleModal() {
                   onPreview={handlePreview}
                 >
                   <Button icon={<UploadOutlined />}>
-                    {fileList1.length > 0 ? 'Replace Driving Licence' : 'Upload Driving Licence'}
+                    {fileList1?.length > 0 ? 'Replace Driving Licence' : 'Upload Driving Licence'}
                   </Button>
                 </Dragger>
               </Form.Item>

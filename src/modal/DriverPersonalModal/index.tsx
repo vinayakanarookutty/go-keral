@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { Modal, Button, Form, Input, Select, DatePicker, Card, Row, Col, Tag, Typography } from 'antd';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
 const { Text } = Typography;
 
-function DriverPersonalModal({ email, personalInfo }) {
+function DriverPersonalModal({ email, personalInfo }:any) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [driverInfo, setDriverInfo] = useState(personalInfo);
+  // const [driverInfo, setDriverInfo] = useState(personalInfo);
 
   const showModal = () => {
     // Populate the form with the existing personalInfo data
@@ -23,13 +23,13 @@ function DriverPersonalModal({ email, personalInfo }) {
     setIsModalVisible(false);
   };
 
-  const handleFinish = (values) => {
+  const handleFinish = (values:any) => {
     const formattedValues = {
       ...values,
       dob: values.dob // Store the dayjs date object for submission
     };
     console.log('Updated Driver Information:', formattedValues);
-    setDriverInfo(formattedValues);
+    // setDriverInfo(formattedValues);
 
     const updatedInfo = { ...formattedValues, mail:email }; // Include email in the data to send
 
@@ -66,7 +66,7 @@ function DriverPersonalModal({ email, personalInfo }) {
           <Card title="Languages & Certifications">
             <div style={{ marginBottom: 16 }}>
               <Text strong>Languages:</Text><br />
-              {personalInfo?.languages?.map((lang) => (
+              {personalInfo?.languages?.map((lang:any) => (
                 <Tag color="blue" key={lang} style={{ margin: '4px' }}>
                   {lang}
                 </Tag>
@@ -74,7 +74,7 @@ function DriverPersonalModal({ email, personalInfo }) {
             </div>
             <div>
               <Text strong>Certifications:</Text><br />
-              {personalInfo?.certifications?.map((cert) => (
+              {personalInfo?.certifications?.map((cert:any) => (
                 <Tag color="green" key={cert} style={{ margin: '4px' }}>
                   {cert}
                 </Tag>

@@ -11,7 +11,7 @@ export function DriverLogin() {
   const navigate = useNavigate();
 
   const login=useUserStore((state:any)=>state?.loginUser)
-  const onFinish = (values) => {
+  const onFinish = (values:any) => {
     console.log('Success:', values);
     
     fetch(`${import.meta.env.VITE_API_URL}/driverlogin`, {
@@ -44,7 +44,7 @@ export function DriverLogin() {
     });
   };
 
-  const onFinishFailed = (errorInfo) => {
+  const onFinishFailed = (errorInfo:any) => {
     console.log('Failed:', errorInfo);
     message.error('Registration failed. Please check your inputs.');
   };

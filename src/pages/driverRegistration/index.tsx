@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Form, Input, Button, Checkbox, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
@@ -11,7 +11,7 @@ export function DriverRegistrationPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const login=useUserStore((state:any)=>state?.loginUser)
-  const onFinish = (values) => {
+  const onFinish = (values:any) => {
     console.log('Success:', values);
     message.success('Registration successful!');
     fetch(`${import.meta.env.VITE_API_URL}/driversignup`, {
@@ -36,7 +36,7 @@ export function DriverRegistrationPage() {
     });
   };
 
-  const onFinishFailed = (errorInfo) => {
+  const onFinishFailed = (errorInfo:any) => {
     console.log('Failed:', errorInfo);
     message.error('Registration failed. Please check your inputs.');
   };

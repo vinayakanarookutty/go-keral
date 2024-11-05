@@ -33,7 +33,7 @@ export function AdminRegistrationPage() {
     });
   };
 
-  const onFinishFailed = (errorInfo) => {
+  const onFinishFailed = (errorInfo:any) => {
     console.log('Failed:', errorInfo);
     message.error('Registration failed. Please check your inputs.');
   };
