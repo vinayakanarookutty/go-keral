@@ -260,27 +260,13 @@ const Maps: React.FC = () => {
       message.warning('Please select a route before booking.');
     }
   };
-  const handlePinClick = (pinId: string, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent map click event
-    setCurrentPlaceId(pinId);
-    const pin = pins.find(p => p._id === pinId);
-    if (pin) {
-      setViewState({
-        ...viewState,
-        latitude: pin.latitude,
-        longitude: pin.longitude,
-        zoom: Math.max(viewState.zoom, 12) // Ensure minimum zoom level when clicking pin
-      });
-    }
-  };
 
   return (
-    <div className="flex flex-col h-screen w-full bg-gradient-to-br from-blue-50 to-green-50">
-      {/* Header Section */}
+    <div className="flex flex-col h-screen w-screen bg-gradient-to-br from-blue-50 to-green-50 overflow-hidden">
       <div className="p-4 bg-white shadow-md z-10">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
           <AutoComplete
-            className="flex-1"
+            className="w-full"
             onSearch={handleOriginChange}
             onSelect={handleOriginSelect}
             placeholder="Origin"
@@ -293,7 +279,7 @@ const Maps: React.FC = () => {
             ))}
           </AutoComplete>
           <AutoComplete
-            className="flex-1"
+            className="w-full"
             onSearch={handleDestinationChange}
             onSelect={handleDestinationSelect}
             placeholder="Destination"
@@ -307,71 +293,56 @@ const Maps: React.FC = () => {
           </AutoComplete>
         </div>
       </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Map Container */}
-        <div className="relative w-full h-[50vh] lg:h-full lg:flex-grow">
+     
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
+        <div className="w-full lg:w-2/3 h-1/2 lg:h-full relative">
           <Map
             {...viewState}
             onMove={(evt) => setViewState(evt.viewState)}
             mapboxAccessToken={mapboxToken}
             mapStyle="mapbox://styles/vinayak1937/cm0rtfeki00mr01pbgjerd69p"
-            style={{ width: '100%', height: '100%' }}
+            
           >
-            {/* Origin Marker */}
-            {originCoords && (
-              <Marker 
-                longitude={originCoords[0]} 
-                latitude={originCoords[1]}
-                anchor="bottom"
-              >
-                <div className="relative group">
-                  <EnvironmentFilled className="text-3xl text-blue-500" />
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    {origin}
-                  </div>
-                </div>
-              </Marker>
-            )}
-
-            {/* Destination Marker */}
-            {destCoords && (
-              <Marker 
-                longitude={destCoords[0]} 
-                latitude={destCoords[1]}
-                anchor="bottom"
-              >
-                <div className="relative group">
-                  <EnvironmentFilled className="text-3xl text-green-500" />
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    {destination}
-                  </div>
-                </div>
-              </Marker>
-            )}
-
-            {/* Location Pins */}
             {pins.map((pin) => (
-              <Marker 
-                key={pin._id} 
-                longitude={pin.longitude} 
-                latitude={pin.latitude}
-                anchor="bottom"
-              >
-                <div className="relative group">
-                  <EnvironmentFilled
-                    className="text-2xl text-red-500 cursor-pointer hover:text-red-600 transition-colors"
-                    onClick={(e) => handlePinClick(pin._id, e)}
-                  />
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    {pin.title}
-                  </div>
-                </div>
+              <Marker key={pin._id} longitude={pin.longitude} latitude={pin.latitude}>
+                <EnvironmentFilled
+                  className="text-2xl text-red-500 cursor-pointer hover:text-red-600 transition-colors"
+                  onClick={() => setCurrentPlaceId(pin._id)}
+                />
               </Marker>
             ))}
-
-            {/* Routes */}
+            {currentPlaceId && (
+              <Popup
+                longitude={pins.find(p => p._id === currentPlaceId)?.longitude || 0}
+                latitude={pins.find(p => p._id === currentPlaceId)?.latitude || 0}
+                closeOnClick={false}
+                onClose={() => setCurrentPlaceId(null)}
+                className="w-64"
+              >
+                {(() => {
+                  const pin = pins.find(p => p._id === currentPlaceId);
+                  if (!pin) return null;
+                  return (
+                    <div className="p-2">
+                      <h3 className="text-lg font-semibold mb-2">{pin.title}</h3>
+                      <p className="text-sm mb-2">{pin.description}</p>
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <span
+                            key={i}
+                            className={`text-xl ${
+                              i < pin.rating ? 'text-yellow-400' : 'text-gray-300'
+                            }`}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </Popup>
+            )}
             {routes.map((route, index) => (
               <Source
                 key={index}
@@ -391,225 +362,173 @@ const Maps: React.FC = () => {
                   }}
                   paint={{
                     "line-color": ROUTE_COLORS[index % ROUTE_COLORS.length],
-                    "line-width": selectedRouteIndex === index ? 6 : 3,
+                    "line-width": selectedRouteIndex === index ? 5 : 3,
                     "line-opacity": selectedRouteIndex === index ? 1 : 0.5
                   }}
                 />
               </Source>
             ))}
-
-            {/* Pin Popup */}
-            {currentPlaceId && (
-              <Popup
-                longitude={pins.find(p => p._id === currentPlaceId)?.longitude || 0}
-                latitude={pins.find(p => p._id === currentPlaceId)?.latitude || 0}
-                anchor="bottom"
-                onClose={() => setCurrentPlaceId(null)}
-                closeOnClick={false}
-                className="max-w-sm"
-              >
-                {(() => {
-                  const pin = pins.find(p => p._id === currentPlaceId);
-                  if (!pin) return null;
-                  return (
-                    <div className="p-3">
-                      <h3 className="text-lg font-semibold mb-2">{pin.title}</h3>
-                      <p className="text-sm mb-3 text-gray-600">{pin.description}</p>
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <span
-                            key={i}
-                            className={`text-xl ${
-                              i < pin.rating ? 'text-yellow-400' : 'text-gray-300'
-                            }`}
-                          >
-                            ★
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
-              </Popup>
+            {originCoords && (
+              <Marker longitude={originCoords[0]} latitude={originCoords[1]}>
+                <EnvironmentFilled className="text-3xl text-blue-500" />
+              </Marker>
+            )}
+            {destCoords && (
+              <Marker longitude={destCoords[0]} latitude={destCoords[1]}>
+                <EnvironmentFilled className="text-3xl text-green-500" />
+              </Marker>
             )}
           </Map>
         </div>
-
-        {/* Route Information Panel */}
-        <div className="w-full lg:w-96 bg-white shadow-lg overflow-y-auto">
-          <div className="p-6">
-            <Text className="text-2xl font-semibold mb-6 block text-gray-800">Route Information</Text>
-            
-            {/* Distance Info */}
-            <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-              <Text className="font-medium text-blue-700">Total Distance: </Text>
-              <Text className="text-blue-600 font-bold">
-                {selectedRouteIndex !== null
-                  ? `${(routes[selectedRouteIndex].distance / 1000).toFixed(2)} km`
-                  : 'N/A'}
-              </Text>
-            </div>
-
-            {/* Pricing Cards */}
-            {selectedRouteIndex !== null && (
-              <div className="mb-8">
-                <Text className="text-lg font-medium mb-4 block text-gray-700">Estimated Prices:</Text>
-                <div className="space-y-4">
-                  <Card className="bg-blue-50 border-blue-200 hover:shadow-md transition-shadow">
-                    <div className="text-center">
-                      <Text className="text-lg font-semibold text-blue-700 block">Premium</Text>
-                      <Text className="text-2xl font-bold text-blue-900 block mt-2">
-                        ₹{calculatePrice(routes[selectedRouteIndex].distance / 1000, 'premium').toFixed(2)}
-                      </Text>
-                      <div className="text-sm text-blue-600 mt-3">
-                        <div>First {PRICING.premium.baseDistance}km: ₹{PRICING.premium.baseFare}</div>
-                        <div>After {PRICING.premium.baseDistance}km: ₹{PRICING.premium.ratePerKm}/km</div>
-                      </div>
-                    </div>
-                  </Card>
-                  <Card className="bg-purple-50 border-purple-200 hover:shadow-md transition-shadow">
-                    <div className="text-center">
-                      <Text className="text-lg font-semibold text-purple-700 block">Luxury</Text>
-                      <Text className="text-2xl font-bold text-purple-900 block mt-2">
-                        ₹{calculatePrice(routes[selectedRouteIndex].distance / 1000, 'luxury').toFixed(2)}
-                      </Text>
-                      <div className="text-sm text-purple-600 mt-3">
-                        <div>First {PRICING.luxury.baseDistance}km: ₹{PRICING.luxury.baseFare}</div>
-                        <div>After {PRICING.luxury.baseDistance}km: ₹{PRICING.luxury.ratePerKm}/km</div>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              </div>
-            )}
-
-            {/* Routes Selection */}
-            <div className="mb-6">
-              <Text className="text-lg font-medium mb-4 block text-gray-700">Available Routes:</Text>
-              <Radio.Group
-                onChange={(e) => handleRouteSelect(e.target.value)}
-                value={selectedRouteIndex}
-                className="space-y-4 w-full"
-              >
-                {routes.map((route, index) => (
-                  <Radio key={index} value={index} className="block w-full">
-                    <div className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200">
-                      <Text className="font-medium" style={{ color: ROUTE_COLORS[index % ROUTE_COLORS.length] }}>
-                        Route {index + 1}
-                      </Text>
-                      <div className="mt-2 space-y-1">
-                        <Text className="block text-sm text-gray-600">
-                          Distance: {(route.distance / 1000).toFixed(2)} km
-                        </Text>
-                        <Text className="block text-sm text-gray-600">
-                          Duration: {(route.duration / 60).toFixed(2)} minutes
-                        </Text>
-                      </div>
-                    </div>
-                  </Radio>
-                ))}
-              </Radio.Group>
-            </div>
-
-            {/* Book Button */}
-            <Button
-              type="primary"
-              onClick={handleBookRoute}
-              disabled={selectedRouteIndex === null}
-              className="w-full h-12 bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              Book Selected Route
-            </Button>
+        <div className="w-full lg:w-1/3 bg-white shadow-lg overflow-auto p-4 lg:p-6">
+          <Text className="text-2xl font-semibold mb-4 block text-gray-800">Route Information</Text>
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+            <Text className="font-medium text-blue-700">Total Distance: </Text>
+            <Text className="text-blue-600 font-bold">
+              {selectedRouteIndex !== null
+                ? `${(routes[selectedRouteIndex].distance / 1000).toFixed(2)} km`
+                : 'N/A'}
+            </Text>
           </div>
+          {selectedRouteIndex !== null && (
+            <div className="mb-6 space-y-4">
+              <Text className="text-lg font-medium block text-gray-700">Estimated Prices:</Text>
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="bg-blue-50 border-blue-200">
+                  <div className="text-center">
+                    <Text className="text-lg font-semibold text-blue-700 block">Premium</Text>
+                    <Text className="text-2xl font-bold text-blue-900 block">
+                      ₹{calculatePrice(routes[selectedRouteIndex].distance / 1000, 'premium').toFixed(2)}
+                    </Text>
+                    <div className="text-sm text-blue-600 mt-2">
+                      <div>First {PRICING.premium.baseDistance}km: ₹{PRICING.premium.baseFare}</div>
+                      <div>After {PRICING.premium.baseDistance}km: ₹{PRICING.premium.ratePerKm}/km</div>
+                    </div>
+                  </div>
+                </Card>
+                <Card className="bg-purple-50 border-purple-200">
+                  <div className="text-center">
+                    <Text className="text-lg font-semibold text-purple-700 block">Luxury</Text>
+                    <Text className="text-2xl font-bold text-purple-900 block">
+                      ₹{calculatePrice(routes[selectedRouteIndex].distance / 1000, 'luxury').toFixed(2)}
+                    </Text>
+                    <div className="text-sm text-purple-600 mt-2">
+                      <div>First {PRICING.luxury.baseDistance}km: ₹{PRICING.luxury.baseFare}</div>
+                      <div>After {PRICING.luxury.baseDistance}km: ₹{PRICING.luxury.ratePerKm}/km</div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </div>
+          )}
+          <Text className="text-lg font-medium mb-2 block text-gray-700">Available Routes:</Text>
+          <Radio.Group
+            onChange={(e) => handleRouteSelect(e.target.value)}
+            value={selectedRouteIndex}
+            className="space-y-4 w-full"
+          >
+            {routes.map((route, index) => (
+              <Radio key={index} value={index} className="block w-full">
+                <div className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200">
+                  <Text className="font-medium" style={{ color: ROUTE_COLORS[index % ROUTE_COLORS.length] }}>
+                    Route {index + 1}
+                  </Text>
+                  <div className="mt-1 space-y-1">
+                    <Text className="block text-sm text-gray-600">Distance: {(route.distance / 1000).toFixed(2)} km</Text>
+                    <Text className="block text-sm text-gray-600">Duration: {(route.duration / 60).toFixed(2)} minutes</Text>
+                  </div>
+                </div>
+              </Radio>
+            ))}
+          </Radio.Group>
+          <Button
+            type="primary"
+            onClick={handleBookRoute}
+            disabled={selectedRouteIndex === null}
+            className="mt-6 w-full bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105"
+          >
+            Book Selected Route
+          </Button>
         </div>
       </div>
-
-      {/* Booking Modal */}
       <Modal
-        title={
-          <div className="text-center">
-            <Title level={4}>Booking Details</Title>
-          </div>
-        }
-        open={isPassengerModalVisible}
-        onOk={handleModalOk}
-        onCancel={() => setIsPassengerModalVisible(false)}
-        width={window.innerWidth > 640 ? 500 : '95%'}
-        className="animated-modal"
-        okText="Confirm Booking"
-        cancelText="Cancel"
-      >
-        <div className="space-y-6 py-4">
-          {/* Service Type */}
-          <div className="flex justify-center space-x-8">
-            <Checkbox
-              value="Luxury"
-              checked={serviceType === "Luxury"}
-              onChange={handleServiceTypeChange}
-              className="text-lg"
-            >
-              Luxury
-            </Checkbox>
-            <Checkbox
-              value="Premium"
-              checked={serviceType === "Premium"}
-              onChange={handleServiceTypeChange}
-              className="text-lg"
-            >
-              Premium
-            </Checkbox>
-          </div>
+  title={
+    <div className="text-center">
+      <Title level={4}>Select Number of Passengers</Title>
+    </div>
+  }
+  open={isPassengerModalVisible}
+  onOk={handleModalOk}
+  onCancel={() => setIsPassengerModalVisible(false)}
+  width={600}
+  className="animated-modal"
+>
+  <div className="flex justify-center mb-4">
+    <Checkbox
+      value="Luxury"
+      checked={serviceType === "Luxury"}
+      onChange={handleServiceTypeChange}
+    >
+      Luxury
+    </Checkbox>
+    <Checkbox
+      value="Premium"
+      checked={serviceType === "Premium"}
+      onChange={handleServiceTypeChange}
+    >
+      Premium
+    </Checkbox>
+  </div>
+  <div className="flex justify-center mb-4">
+    <Select
+      placeholder="Select number of passengers"
+      onChange={setPassengers}
+      style={{ width: 200 }}
+      value={passengers}
+    >
+      {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => (
+        <Option key={num} value={num}>
+          {num}
+        </Option>
+      ))}
+    </Select>
+  </div>
+  <div className="flex justify-center mb-4">
+    <DatePicker
+      placeholder="Select date"
+      onChange={handleDateChange}
+      style={{ width: 200 }}
+      value={selectedDate}
+    />
+  </div>
+  <div className="flex justify-center mb-4">
+    <TimePicker
+      placeholder="Select time"
+      onChange={handleTimeChange}
+      style={{ width: 200 }}
+      value={selectedTime}
+      format="HH:mm"
+    />
+  </div>
+  <div className="flex justify-center mb-4">
+    <Input
+      placeholder="Enter passenger name"
+      onChange={(e) => setPassengerName(e.target.value)}
+      style={{ width: 200 }}
+      value={passengerName}
+    />
+  </div>
+  <div className="flex justify-center mb-4">
+    <Input
+      placeholder="Enter phone number"
+      onChange={(e) => setPhoneNumber(e.target.value)}
+      style={{ width: 200 }}
+      value={phoneNumber}
+      type="tel"
+    />
+  </div>
+</Modal>
 
-          {/* Passenger Details */}
-          <div className="space-y-4">
-            <Select
-              placeholder="Select number of passengers"
-              onChange={setPassengers}
-              className="w-full"
-              value={passengers}
-              size="large"
-            >
-              {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => (
-                <Option key={num} value={num}>{num} passenger{num > 1 ? 's' : ''}</Option>
-              ))}
-            </Select>
-
-            <Input
-              placeholder="Passenger Name"
-              onChange={(e) => setPassengerName(e.target.value)}
-              className="w-full"
-              size="large"
-              value={passengerName}
-            />
-
-            <Input
-              placeholder="Phone Number"
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className="w-full"
-              size="large"
-              value={phoneNumber}
-              type="tel"
-            />
-
-            <DatePicker
-              placeholder="Select Date"
-              onChange={handleDateChange}
-              className="w-full"
-              size="large"
-              value={selectedDate}
-            />
-
-            <TimePicker
-              placeholder="Select Time"
-              onChange={handleTimeChange}
-              className="w-full"
-              size="large"
-              value={selectedTime}
-              format="HH:mm"
-            />
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 };
