@@ -3,6 +3,7 @@ import { Tabs, Card, Typography, Form, Button, Table, message, Select, Checkbox,
 import { UserOutlined, SettingOutlined, PlusOutlined, BellOutlined, LogoutOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Logo from "../../../public/gokeral.png"
 
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
@@ -140,7 +141,7 @@ export default function UserProfile() {
       <Layout className="min-h-screen">
         <Header className="flex items-center justify-between px-8 bg-white border-b">
           <div className="flex items-center gap-4">
-            <img src="../../../public/gokeral.png" alt="Logo" className="h-8 w-auto" />
+            <img src={Logo} alt="Logo" className="h-8 w-auto" />
             <Title level={4} className="!mb-0">Go Keral</Title>
           </div>
           <div className="flex items-center gap-4">

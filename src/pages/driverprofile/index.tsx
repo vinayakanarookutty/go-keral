@@ -3,6 +3,7 @@ import { Tabs, Card,  Typography, Form,  Button, Table,  message, Select, Checkb
 import { UserOutlined, CarOutlined, SettingOutlined, PlusOutlined, BellOutlined,LogoutOutlined } from '@ant-design/icons';
 import {  useNavigate } from 'react-router-dom';
 import { Image } from 'antd';
+import Logo from "../../../public/gokeral.png"
 
 import { LoadingOutlined } from '@ant-design/icons';
 import axios from 'axios';
@@ -201,7 +202,7 @@ console.log(userDetails)
       <Header className="flex items-center justify-between px-8 bg-white border-b">
         <div className="flex items-center gap-4">
           <img
-            src="../../../public/gokeral.png"
+            src={Logo}
             alt="Logo"
             className="h-8 w-auto"
           />

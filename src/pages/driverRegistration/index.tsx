@@ -4,7 +4,8 @@ import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-de
 import { Link, useNavigate } from 'react-router-dom';
 import { Car } from 'lucide-react';
 import { useUserStore } from '../../store/user';
-
+import Logo from "../../../public/gokeral.png"
+import background_img from "../../../public/background.jpg"
 const { Title, Text } = Typography;
 
 export function DriverRegistrationPage() {
@@ -42,7 +43,7 @@ export function DriverRegistrationPage() {
   };
 
   return (
-    <div  style={{ backgroundImage: "url('../../../public/background.jpg')",backgroundSize: 'cover',
+    <div  style={{ backgroundImage:`url(${background_img})`,backgroundSize: 'cover',
       backgroundPosition: 'center'}} className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-r ">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-2xl relative overflow-hidden">
         {/* Background decorative elements */}
@@ -54,7 +55,7 @@ export function DriverRegistrationPage() {
 
         {/* Content */}
         <div className="relative z-10">
-          <img className="mx-auto h-24 w-auto" src="../../../public/gokeral.png" alt="Company Logo" />
+          <img className="mx-auto h-24 w-auto" src={Logo} alt="Company Logo" />
           <Title level={2} className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Driver Registration
           </Title>

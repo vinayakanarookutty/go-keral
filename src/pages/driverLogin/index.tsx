@@ -2,10 +2,10 @@
 import { Form, Input, Button, Typography, message } from 'antd';
 import {  LockOutlined,  PhoneOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-
+import background_img from "../../../public/background.jpg"
 import { useUserStore } from '../../store/user';
 const { Title, Text } = Typography;
-
+import Logo from "../../../public/gokeral.png"
 export function DriverLogin() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -50,7 +50,7 @@ export function DriverLogin() {
   };
 
   return (
-    <div style={{ backgroundImage: "url('../../../public/background.jpg')",backgroundSize: 'cover',
+    <div style={{ backgroundImage: `url(${background_img})`,backgroundSize: 'cover',
       backgroundPosition: 'center'}} className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-r ">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-2xl relative overflow-hidden">
         {/* Background decorative elements */}
@@ -62,7 +62,7 @@ export function DriverLogin() {
 
         {/* Content */}
         <div className="relative z-10">
-          <img className="mx-auto h-24 w-auto" src="../../../public/gokeral.png" alt="Company Logo" />
+          <img className="mx-auto h-24 w-auto" src={Logo} alt="Company Logo" />
           <Title level={2} className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Driver Login
           </Title>
