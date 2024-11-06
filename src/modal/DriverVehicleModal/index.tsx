@@ -47,6 +47,8 @@ interface DocumentUpload extends UploadFile {
     status: UploadFileStatus; // Restrict status to UploadFileStatus
     url: string; // You can retain custom fields as needed
     response: object;
+    originFileObj?:any
+    path?:any
 }
 
 interface VehicleImage {
@@ -55,9 +57,9 @@ interface VehicleImage {
     originFileObj: any;
 }
 
-interface VehicleImageUrl {
-    url: string; // URL or path to the vehicle image
-}
+// interface VehicleImageUrl {
+//     url: string; // URL or path to the vehicle image
+// }
 
 interface Vehicle {
     _id: string; // Unique identifier for the vehicle
@@ -88,7 +90,7 @@ function DriverAddVehicleModal() {
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [fileList1, setFileList1] = useState<
-        DocumentUpload[] | VehicleImageUrl
+        DocumentUpload[] 
     >([]);
     const [fileList2, setFileList2] = useState<DocumentUpload[]>([]);
     const [fileList3, setFileList3] = useState<DocumentUpload[]>([]);
@@ -97,7 +99,7 @@ function DriverAddVehicleModal() {
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState("");
     const [previewTitle, setPreviewTitle] = useState("");
-    const [vehicleImages, setVehicleImages] = useState<VehicleImage[]>([]);
+    const [vehicleImages, setVehicleImages] = useState<DocumentUpload[]>([]);
     const [form] = Form.useForm();
     const [editingVehicle, setEditingVehicle] = useState<Vehicle>();
 
@@ -108,6 +110,8 @@ function DriverAddVehicleModal() {
         status: UploadFileStatus; // Change this to UploadFileStatus, not just string
         url: string;
         response: object;
+        path?:any
+        originFileObj?:any
     }
 
     const vehicleTypes = [
@@ -312,8 +316,8 @@ function DriverAddVehicleModal() {
 
             // Handle vehicle images
             const existingImages = vehicleImages
-                .filter((file) => file?.response?.path)
-                .map((file) => file?.response.path);
+            .filter((file) => typeof file?.response === 'object' && 'path' in file.response)
+            .map((file) => (file.response as { path: string }).path);
 
             formData.append(
                 "existing_vehicleImages",
