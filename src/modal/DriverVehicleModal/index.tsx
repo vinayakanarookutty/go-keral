@@ -175,8 +175,9 @@ function DriverAddVehicleModal() {
     };
 
     const showModal = (vehicle: any = {}) => {
-        setEditingVehicle(vehicle);
-        if (vehicle) {
+      
+        if (Object.keys(vehicle).length > 0) {
+            setEditingVehicle(vehicle);
             form.setFieldsValue({
                 make: vehicle.make,
                 model: vehicle.model,
