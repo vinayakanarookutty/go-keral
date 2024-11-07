@@ -1,17 +1,18 @@
-
 import { Form, Input, Button, Checkbox, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { Car } from 'lucide-react';
 import { useUserStore } from '../../store/user';
-import Logo from "../../../public/gokeral.png"
-import background_img from "../../../public/background.jpg"
+import Logo from "../../../public/gokeral.png";
+import background_img from "../../../public/background.jpg";
+
 const { Title, Text } = Typography;
 
 export function DriverRegistrationPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const login=useUserStore((state:any)=>state?.loginUser)
+  const login = useUserStore((state:any) => state?.loginUser);
+
   const onFinish = (values:any) => {
     console.log('Success:', values);
     message.success('Registration successful!');
@@ -24,8 +25,6 @@ export function DriverRegistrationPage() {
     })
     .then(response => response.json())
     .then(data => {
-    
-  
       if(data.message == "Driver Created Succesfully"){
         navigate('/driverProfile')
         login({email:data.user.email,name:data.user.name})
@@ -43,40 +42,51 @@ export function DriverRegistrationPage() {
   };
 
   return (
-    <div  style={{ backgroundImage:`url(${background_img})`,backgroundSize: 'cover',
-      backgroundPosition: 'center'}} className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-r ">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-2xl relative overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-          <img src="/api/placeholder/1000/800" alt="Background" className="object-cover w-full h-full opacity-5" />
-        </div>
-        <div className="absolute top-0 right-0 w-40 h-40  rounded-full transform translate-x-1/3 -translate-y-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-40 h-40 rounded-full transform -translate-x-1/3 translate-y-1/3"></div>
-
-        {/* Content */}
-        <div className="relative z-10">
-          <img className="mx-auto h-24 w-auto" src={Logo} alt="Company Logo" />
-          <Title level={2} className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Driver Registration
+    <div 
+      style={{ 
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${background_img})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }} 
+      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+    >
+      <div className="max-w-md w-full space-y-8 bg-white/95 backdrop-blur-sm p-10 rounded-xl shadow-2xl relative">
+        {/* Glassmorphism effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 rounded-xl backdrop-blur-sm -z-10" />
+        
+        {/* Logo and Title */}
+        <div className="relative z-10 text-center">
+          <img 
+            className="mx-auto h-24 w-auto transform transition-transform duration-500 hover:scale-105" 
+            src={Logo} 
+            alt="Gokeral Logo" 
+          />
+          <Title level={2} className="mt-6 text-center text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Partner with Us
           </Title>
-          <Text className="mt-2 text-center text-sm text-gray-600 block">
-            Join our elite team of professional drivers
+          <Text className="mt-2 text-center text-sm text-gray-600 block font-medium">
+            Join our professional driver network
           </Text>
         </div>
         
+        {/* Registration Form */}
         <Form
           form={form}
           name="driver_registration"
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           layout="vertical"
-          className="mt-8 space-y-6 relative z-10"
+          className="mt-8 space-y-5 relative z-10"
         >
           <Form.Item
             name="name"
             rules={[{ required: true, message: 'Please input your full name!' }]}
           >
-            <Input prefix={<UserOutlined className="site-form-item-icon text-blue-500" />} placeholder="Full Name" className="rounded-md" />
+            <Input 
+              prefix={<UserOutlined className="text-blue-500" />} 
+              placeholder="Full Name" 
+              className="h-11 rounded-lg border-gray-200 hover:border-blue-500 transition-colors" 
+            />
           </Form.Item>
 
           <Form.Item
@@ -86,21 +96,33 @@ export function DriverRegistrationPage() {
               { type: 'email', message: 'Please enter a valid email address!' }
             ]}
           >
-            <Input prefix={<MailOutlined className="site-form-item-icon text-blue-500" />} placeholder="Email Address" className="rounded-md" />
+            <Input 
+              prefix={<MailOutlined className="text-blue-500" />} 
+              placeholder="Email Address" 
+              className="h-11 rounded-lg border-gray-200 hover:border-blue-500 transition-colors" 
+            />
           </Form.Item>
 
           <Form.Item
             name="phone"
             rules={[{ required: true, message: 'Please input your phone number!' }]}
           >
-            <Input prefix={<PhoneOutlined className="site-form-item-icon text-blue-500" />} placeholder="Phone Number" className="rounded-md" />
+            <Input 
+              prefix={<PhoneOutlined className="text-blue-500" />} 
+              placeholder="Phone Number" 
+              className="h-11 rounded-lg border-gray-200 hover:border-blue-500 transition-colors" 
+            />
           </Form.Item>
 
           <Form.Item
             name="drivinglicenseNo"
             rules={[{ required: true, message: 'Please input your driving license number!' }]}
           >
-            <Input prefix={<Car className="site-form-item-icon text-blue-500" />} placeholder="Driving License No" className="rounded-md" />
+            <Input 
+              prefix={<Car className="text-blue-500" size={16} />} 
+              placeholder="Driving License No" 
+              className="h-11 rounded-lg border-gray-200 hover:border-blue-500 transition-colors" 
+            />
           </Form.Item>
 
           <Form.Item
@@ -110,7 +132,11 @@ export function DriverRegistrationPage() {
               { min: 6, message: 'Password must be at least 6 characters long!' }
             ]}
           >
-            <Input.Password prefix={<LockOutlined className="site-form-item-icon text-blue-500" />} placeholder="Password" className="rounded-md" />
+            <Input.Password 
+              prefix={<LockOutlined className="text-blue-500" />} 
+              placeholder="Password" 
+              className="h-11 rounded-lg border-gray-200 hover:border-blue-500 transition-colors" 
+            />
           </Form.Item>
 
           <Form.Item
@@ -127,7 +153,11 @@ export function DriverRegistrationPage() {
               }),
             ]}
           >
-            <Input.Password prefix={<LockOutlined className="site-form-item-icon text-blue-500" />} placeholder="Confirm Password" className="rounded-md" />
+            <Input.Password 
+              prefix={<LockOutlined className="text-blue-500" />} 
+              placeholder="Confirm Password" 
+              className="h-11 rounded-lg border-gray-200 hover:border-blue-500 transition-colors" 
+            />
           </Form.Item>
 
           <Form.Item
@@ -137,21 +167,28 @@ export function DriverRegistrationPage() {
               { validator: (_, value) => value ? Promise.resolve() : Promise.reject('Please accept the agreement') },
             ]}
           >
-            <Checkbox>
-              I agree to the <Link to="/terms" className="text-blue-600 hover:text-blue-800">Terms and Conditions</Link>
+            <Checkbox className="text-gray-600">
+              I agree to the <Link to="/terms" className="text-blue-600 hover:text-blue-800 font-medium">Terms and Conditions</Link>
             </Checkbox>
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-md h-12 text-lg font-semibold transition-all duration-300 transform hover:scale-105">
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg h-12 text-lg font-semibold transition-all duration-300 transform hover:scale-[1.02] border-0 shadow-lg hover:shadow-xl"
+            >
               Join Our Team
             </Button>
           </Form.Item>
         </Form>
 
         <div className="mt-6 text-center relative z-10">
-          <Text className="text-sm text-gray-600">
-            Already have an account? <Link to="/driverlogin" className="font-medium text-indigo-600 hover:text-indigo-500">Sign in</Link>
+          <Text className="text-gray-600">
+            Already have an account?{' '}
+            <Link to="/driverlogin" className="font-medium text-blue-600 hover:text-blue-800 transition-colors">
+              Sign in
+            </Link>
           </Text>
         </div>
       </div>

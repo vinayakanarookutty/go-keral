@@ -10,7 +10,7 @@ import Logo from "../../../public/gokeral.png";
 import background_img from "../../../public/background.jpg";
 import { useUserStore } from "../../store/user";
 
-const { Title, Text } = Typography;
+const {  Text } = Typography;
 
 export function DriverRegistrationPage() {
   const [form] = Form.useForm();
