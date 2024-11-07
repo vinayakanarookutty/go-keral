@@ -1,149 +1,218 @@
-
-import { Form, Input, Button, Checkbox, Typography, message } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
-import Logo from "../../../public/gokeral.png"
-import background_img from "../../../public/background.jpg"
-import { useUserStore } from '../../store/user';
+import { Form, Input, Button, Checkbox, Typography, message } from "antd";
+import {
+  UserOutlined,
+  LockOutlined,
+  MailOutlined,
+  PhoneOutlined,
+} from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
+import Logo from "../../../public/gokeral.png";
+import background_img from "../../../public/background.jpg";
+import { useUserStore } from "../../store/user";
 
 const { Title, Text } = Typography;
 
 export function DriverRegistrationPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const login=useUserStore((state:any)=>state?.loginUser)
-  const onFinish = (values:any) => {
-    console.log('Success:', values);
-    message.success('Registration successful!');
+  const login = useUserStore((state: any) => state?.loginUser);
+  const onFinish = (values: any) => {
+    console.log("Success:", values);
+    message.success("Registration successful!");
     fetch(`${import.meta.env.VITE_API_URL}/signup`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(values),
     })
-    .then(response => response.json())
-    .then(data => {
-    
-  
-      if(data.message == "User Created Succesfully"){
-        navigate('/')
-        login({email:data.user.email,name:data.user.name})
-      }
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-      message.error('Registration failed. Please try again.');
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message == "User Created Succesfully") {
+          navigate("/");
+          login({ email: data.user.email, name: data.user.name });
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        message.error("Registration failed. Please try again.");
+      });
   };
 
-  const onFinishFailed = (errorInfo:any) => {
-    console.log('Failed:', errorInfo);
-    message.error('Registration failed. Please check your inputs.');
+  const onFinishFailed = (errorInfo: any) => {
+    console.log("Failed:", errorInfo);
+    message.error("Registration failed. Please check your inputs.");
   };
 
   return (
-    <div  style={{ backgroundImage: `url(${background_img})`,backgroundSize: 'cover',
-      backgroundPosition: 'center'}} className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-r ">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-2xl relative overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-          <img src="/api/placeholder/1000/800" alt="Background" className="object-cover w-full h-full opacity-5" />
-        </div>
-        <div className="absolute top-0 right-0 w-40 h-40  rounded-full transform translate-x-1/3 -translate-y-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-40 h-40 rounded-full transform -translate-x-1/3 translate-y-1/3"></div>
+    <div
+      style={{
+        backgroundImage: `url(${background_img})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+      className="h-[94vh] flex items-center justify-center px-4 py-6 sm:px-6 lg:px-8"
+    >
+      <style>
+        {` @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500;600&display=swap');`}
+      </style>
 
-        {/* Content */}
-        <div className="relative z-10">
-          <img className="mx-auto h-24 w-auto" src={Logo} alt="Company Logo" />
-          <Title style={{fontFamily:"Lobster"}} level={2} className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Registration
-          </Title>
-         
+      <div className="w-full h-full bg-black/50 rounded-2xl p-6 box-border flex flex-col justify-between gap-2">
+        {/* Icon and Heading */}
+        <div className="flex flex-col items-center">
+          <img src={Logo} alt="" className="w-28 aspect-square" />
+          <span
+            className="text-[#D4AF37] uppercase font-bold text-xl"
+            style={{ fontFamily: "Montserrat" }}
+          >
+            Registration
+          </span>
         </div>
-        
+
+        {/* Form */}
         <Form
           form={form}
           name="user_registration"
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           layout="vertical"
-          className="mt-8 space-y-6 relative z-10"
+          className=""
         >
           <Form.Item
             name="name"
-            rules={[{ required: true, message: 'Please input your full name!' }]}
+            rules={[
+              { required: true, message: "Please input your full name!" },
+            ]}
           >
-            <Input prefix={<UserOutlined className="site-form-item-icon text-blue-500" />} placeholder="Full Name" className="rounded-md" />
+            <Input
+              prefix={
+                <UserOutlined className="site-form-item-icon text-[#D4AF37]" />
+              }
+              placeholder="Full Name"
+              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none text-[#D4AF37] "
+              style={{ backgroundColor: "transparent", boxShadow: "none" }}
+            />
           </Form.Item>
 
           <Form.Item
             name="email"
             rules={[
-              { required: true, message: 'Please input your email!' },
-              { type: 'email', message: 'Please enter a valid email address!' }
+              { required: true, message: "Please input your email!" },
+              { type: "email", message: "Please enter a valid email address!" },
             ]}
           >
-            <Input prefix={<MailOutlined className="site-form-item-icon text-blue-500" />} placeholder="Email Address" className="rounded-md" />
+            <Input
+              prefix={
+                <MailOutlined className="site-form-item-icon text-[#D4AF37]" />
+              }
+              placeholder="Email Address"
+              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none text-[#D4AF37] "
+              style={{ backgroundColor: "transparent", boxShadow: "none" }}
+            />
           </Form.Item>
 
           <Form.Item
             name="phone"
-            rules={[{ required: true, message: 'Please input your phone number!' }]}
+            rules={[
+              { required: true, message: "Please input your phone number!" },
+            ]}
           >
-            <Input prefix={<PhoneOutlined className="site-form-item-icon text-blue-500" />} placeholder="Phone Number" className="rounded-md" />
+            <Input
+              prefix={
+                <PhoneOutlined className="site-form-item-icon text-[#D4AF37]" />
+              }
+              placeholder="Phone Number"
+              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none text-[#D4AF37] "
+              style={{ backgroundColor: "transparent", boxShadow: "none" }}
+            />
           </Form.Item>
-
 
           <Form.Item
             name="password"
             rules={[
-              { required: true, message: 'Please input your password!' },
-              { min: 6, message: 'Password must be at least 6 characters long!' }
+              { required: true, message: "Please input your password!" },
+              {
+                min: 6,
+                message: "Password must be at least 6 characters long!",
+              },
             ]}
           >
-            <Input.Password prefix={<LockOutlined className="site-form-item-icon text-blue-500" />} placeholder="Password" className="rounded-md" />
+            <Input.Password
+              prefix={
+                <LockOutlined className="site-form-item-icon text-[#D4AF37]" />
+              }
+              placeholder="Password"
+              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none text-[#D4AF37] "
+              style={{ backgroundColor: "transparent", boxShadow: "none" }}
+            />
           </Form.Item>
 
           <Form.Item
             name="confirmpassword"
             rules={[
-              { required: true, message: 'Please confirm your password!' },
+              { required: true, message: "Please confirm your password!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue('password') === value) {
+                  if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('The two passwords do not match!'));
+                  return Promise.reject(
+                    new Error("The two passwords do not match!")
+                  );
                 },
               }),
             ]}
           >
-            <Input.Password prefix={<LockOutlined className="site-form-item-icon text-blue-500" />} placeholder="Confirm Password" className="rounded-md" />
+            <Input.Password
+              prefix={
+                <LockOutlined className="site-form-item-icon text-[#D4AF37]" />
+              }
+              placeholder="Confirm Password"
+              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none text-[#D4AF37] "
+              style={{ backgroundColor: "transparent", boxShadow: "none" }}
+            />
           </Form.Item>
 
           <Form.Item
             name="agreement"
             valuePropName="checked"
             rules={[
-              { validator: (_, value) => value ? Promise.resolve() : Promise.reject('Please accept the agreement') },
+              {
+                validator: (_, value) =>
+                  value
+                    ? Promise.resolve()
+                    : Promise.reject("Please accept the agreement"),
+              },
             ]}
           >
-            <Checkbox>
-              I agree to the <Link to="/terms" className="text-blue-600 hover:text-blue-800">Terms and Conditions</Link>
+            <Checkbox className="text-white">
+              I agree to the{" "}
+              <Link to="/terms" className="text-[#D4AF37] hover:text-blue-800">
+                Terms and Conditions
+              </Link>
             </Checkbox>
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-md h-12 text-lg font-semibold transition-all duration-300 transform hover:scale-105">
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="w-full bg-transparent outline-none border border-[#D4AF37]  text-[#D4AF37] hover:from-blue-600 hover:to-indigo-700  h-12 text-lg font-semibold transition-all duration-300 transform hover:scale-105"
+            >
               Join Our Team
             </Button>
           </Form.Item>
         </Form>
 
-        <div className="mt-6 text-center relative z-10">
-          <Text className="text-sm text-gray-600">
-            Already have an account? <Link to="/userlogin" className="font-medium text-indigo-600 hover:text-indigo-500">Sign in</Link>
+        <div className="text-center">
+          <Text className="text-sm text-white">
+            Already have an account?{" "}
+            <Link
+              to="/userlogin"
+              className="font-medium text-[#D4AF37] "
+            >
+              Sign in
+            </Link>
           </Text>
         </div>
       </div>
