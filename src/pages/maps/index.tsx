@@ -313,7 +313,7 @@ const Maps: React.FC = () => {
         </AutoComplete>
       </div>
 
-      <div className="h-[calc(100vh-100px)] grid grid-rows-2 relative lg:grid-cols-[2fr_1fr] lg:grid-rows-1 lg:h-[calc(100vh-60px)]">
+      <div className="h-[calc(100dvh-100px)] grid grid-rows-2 relative lg:grid-cols-[2fr_1fr] lg:grid-rows-1 lg:h-[calc(100dvh-60px)]">
         <div className="overflow-hidden ">
           <Map
             {...viewState}

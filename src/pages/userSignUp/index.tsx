@@ -9,8 +9,11 @@ import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../../public/gokeral.png";
 import background_img from "../../../public/background.jpg";
 import { useUserStore } from "../../store/user";
+import { useState } from "react";
 
 const { Title, Text } = Typography;
+
+const [isHovering, setisHovering] = useState(false);
 
 export function DriverRegistrationPage() {
   const [form] = Form.useForm();
@@ -51,13 +54,13 @@ export function DriverRegistrationPage() {
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
-      className="h-[94vh] flex items-center justify-center px-4 py-6 sm:px-6 lg:px-8"
+      className="h-dvh flex items-center justify-center sm:px-6 lg:px-8"
     >
       <style>
         {` @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500;600&display=swap');`}
       </style>
 
-      <div className="w-full h-full bg-black/50 rounded-2xl p-6 box-border flex flex-col justify-between gap-2">
+      <div className="w-full h-full bg-black/50 p-6 box-border flex flex-col justify-between gap-2">
         {/* Icon and Heading */}
         <div className="flex flex-col items-center">
           <img src={Logo} alt="" className="w-28 aspect-square" />
@@ -89,7 +92,7 @@ export function DriverRegistrationPage() {
                 <UserOutlined className="site-form-item-icon text-[#D4AF37]" />
               }
               placeholder="Full Name"
-              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none text-[#D4AF37] "
+              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none p-2 text-[#D4AF37] "
               style={{ backgroundColor: "transparent", boxShadow: "none" }}
             />
           </Form.Item>
@@ -106,7 +109,7 @@ export function DriverRegistrationPage() {
                 <MailOutlined className="site-form-item-icon text-[#D4AF37]" />
               }
               placeholder="Email Address"
-              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none text-[#D4AF37] "
+              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none p-2 text-[#D4AF37] "
               style={{ backgroundColor: "transparent", boxShadow: "none" }}
             />
           </Form.Item>
@@ -122,7 +125,7 @@ export function DriverRegistrationPage() {
                 <PhoneOutlined className="site-form-item-icon text-[#D4AF37]" />
               }
               placeholder="Phone Number"
-              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none text-[#D4AF37] "
+              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none p-2 text-[#D4AF37] "
               style={{ backgroundColor: "transparent", boxShadow: "none" }}
             />
           </Form.Item>
@@ -142,7 +145,7 @@ export function DriverRegistrationPage() {
                 <LockOutlined className="site-form-item-icon text-[#D4AF37]" />
               }
               placeholder="Password"
-              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none text-[#D4AF37] "
+              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none p-2 text-[#D4AF37] "
               style={{ backgroundColor: "transparent", boxShadow: "none" }}
             />
           </Form.Item>
@@ -168,7 +171,7 @@ export function DriverRegistrationPage() {
                 <LockOutlined className="site-form-item-icon text-[#D4AF37]" />
               }
               placeholder="Confirm Password"
-              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none text-[#D4AF37] "
+              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none p-2 text-[#D4AF37] "
               style={{ backgroundColor: "transparent", boxShadow: "none" }}
             />
           </Form.Item>
@@ -197,20 +200,17 @@ export function DriverRegistrationPage() {
             <Button
               type="primary"
               htmlType="submit"
-              className="w-full bg-transparent outline-none border border-[#D4AF37]  text-[#D4AF37] hover:from-blue-600 hover:to-indigo-700  h-12 text-lg font-semibold transition-all duration-300 transform hover:scale-105"
+              style={{ backgroundColor: "transparent", borderColor: "#D4AF37" }}
+              className="w-full border text-[#D4AF37] hover:bg-[#D4AF37] hover:text-white h-12 text-lg font-semibold transition-all duration-300 transform hover:scale-105"
             >
               Join Our Team
             </Button>
           </Form.Item>
         </Form>
-
         <div className="text-center">
           <Text className="text-sm text-white">
             Already have an account?{" "}
-            <Link
-              to="/userlogin"
-              className="font-medium text-[#D4AF37] "
-            >
+            <Link to="/userlogin" className="font-medium text-[#D4AF37] ">
               Sign in
             </Link>
           </Text>
