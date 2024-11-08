@@ -112,7 +112,7 @@ export function DriverLogin() {
 
         <div className="mt-6 text-center relative z-10">
           <Text className="text-sm text-gray-600">
-            Already have an account? <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">Sign in</Link>
+            Already have an account? <Link to="/driverRegistration" className="font-medium text-indigo-600 hover:text-indigo-500">Sign in</Link>
           </Text>
         </div>
       </div>

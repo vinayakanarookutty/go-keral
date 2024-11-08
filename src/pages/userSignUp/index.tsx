@@ -11,7 +11,6 @@ import background_img from "../../../public/background.jpg";
 import { useUserStore } from "../../store/user";
 import { useState } from "react";
 
-const { Title, Text } = Typography;
 
 const [isHovering, setisHovering] = useState(false);
 
@@ -19,6 +18,7 @@ export function DriverRegistrationPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const login = useUserStore((state: any) => state?.loginUser);
+  
   const onFinish = (values: any) => {
     console.log("Success:", values);
     message.success("Registration successful!");
@@ -62,10 +62,10 @@ export function DriverRegistrationPage() {
 
       <div className="w-full h-full bg-black/50 p-6 box-border flex flex-col justify-between gap-2">
         {/* Icon and Heading */}
-        <div className="flex flex-col items-center">
-          <img src={Logo} alt="" className="w-28 aspect-square" />
+        <div className="flex flex-col items-center mb-6">
+          <img src={Logo} alt="" className="w-20 sm:w-24 lg:w-28 aspect-square mb-4" />
           <span
-            className="text-[#D4AF37] uppercase font-bold text-xl"
+            className="text-[#D4AF37] uppercase font-bold text-lg sm:text-xl"
             style={{ fontFamily: "Montserrat" }}
           >
             Registration
@@ -79,7 +79,7 @@ export function DriverRegistrationPage() {
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           layout="vertical"
-          className=""
+          className="space-y-4"
         >
           <Form.Item
             name="name"
@@ -88,9 +88,7 @@ export function DriverRegistrationPage() {
             ]}
           >
             <Input
-              prefix={
-                <UserOutlined className="site-form-item-icon text-[#D4AF37]" />
-              }
+              prefix={<UserOutlined className="site-form-item-icon text-[#D4AF37]" />}
               placeholder="Full Name"
               className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none p-2 text-[#D4AF37] "
               style={{ backgroundColor: "transparent", boxShadow: "none" }}
@@ -105,9 +103,7 @@ export function DriverRegistrationPage() {
             ]}
           >
             <Input
-              prefix={
-                <MailOutlined className="site-form-item-icon text-[#D4AF37]" />
-              }
+              prefix={<MailOutlined className="site-form-item-icon text-[#D4AF37]" />}
               placeholder="Email Address"
               className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none p-2 text-[#D4AF37] "
               style={{ backgroundColor: "transparent", boxShadow: "none" }}
@@ -121,9 +117,7 @@ export function DriverRegistrationPage() {
             ]}
           >
             <Input
-              prefix={
-                <PhoneOutlined className="site-form-item-icon text-[#D4AF37]" />
-              }
+              prefix={<PhoneOutlined className="site-form-item-icon text-[#D4AF37]" />}
               placeholder="Phone Number"
               className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none p-2 text-[#D4AF37] "
               style={{ backgroundColor: "transparent", boxShadow: "none" }}
@@ -134,16 +128,11 @@ export function DriverRegistrationPage() {
             name="password"
             rules={[
               { required: true, message: "Please input your password!" },
-              {
-                min: 6,
-                message: "Password must be at least 6 characters long!",
-              },
+              { min: 6, message: "Password must be at least 6 characters long!" },
             ]}
           >
             <Input.Password
-              prefix={
-                <LockOutlined className="site-form-item-icon text-[#D4AF37]" />
-              }
+              prefix={<LockOutlined className="site-form-item-icon text-[#D4AF37]" />}
               placeholder="Password"
               className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none p-2 text-[#D4AF37] "
               style={{ backgroundColor: "transparent", boxShadow: "none" }}
@@ -159,19 +148,15 @@ export function DriverRegistrationPage() {
                   if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(
-                    new Error("The two passwords do not match!")
-                  );
+                  return Promise.reject(new Error("The two passwords do not match!"));
                 },
               }),
             ]}
           >
             <Input.Password
-              prefix={
-                <LockOutlined className="site-form-item-icon text-[#D4AF37]" />
-              }
+              prefix={<LockOutlined className="site-form-item-icon text-[#D4AF37]" />}
               placeholder="Confirm Password"
-              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none p-2 text-[#D4AF37] "
+              className="bg-transparent border-0 border-b-2 border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none rounded-none text-[#D4AF37] "
               style={{ backgroundColor: "transparent", boxShadow: "none" }}
             />
           </Form.Item>

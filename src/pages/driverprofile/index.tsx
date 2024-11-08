@@ -139,7 +139,8 @@ console.log(userDetails)
     { title: 'Distance', dataIndex: 'distance', key: 'distance' },
     { title: 'Duration', dataIndex: 'duration', key: 'duration' },
     { title: 'Date', dataIndex: 'date', key: 'date' },
-    
+    { title: 'Passanger Name', dataIndex: 'passengerName', key: 'passengerName' },
+    { title: 'Passanger Phone No', dataIndex: 'phoneNumber', key: 'phoneNumber' },
   ];
 
   
@@ -234,7 +235,6 @@ console.log(userDetails)
         listType="picture-card"
         className="avatar-uploader"
         showUploadList={false}
-        action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
         beforeUpload={beforeUpload}
         onChange={handleChange}
       >

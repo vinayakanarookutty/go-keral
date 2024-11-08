@@ -18,7 +18,10 @@ import {
     EditOutlined,
     PictureOutlined,
     DeleteOutlined,
+    LoadingOutlined
 } from "@ant-design/icons";
+
+import {  Spin } from 'antd';
 const { Dragger } = Upload;
 import axios from "axios";
 import { UploadFile, UploadFileStatus } from "antd/es/upload/interface";
@@ -88,6 +91,7 @@ interface Vehicle {
 
 function DriverAddVehicleModal() {
     const [loading, setLoading] = useState(true);
+    const [loading2, setLoading2] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [fileList1, setFileList1] = useState<
         DocumentUpload[] 
@@ -175,8 +179,9 @@ function DriverAddVehicleModal() {
     };
 
     const showModal = (vehicle: any = {}) => {
-        setEditingVehicle(vehicle);
-        if (vehicle) {
+    
+        if (Object.keys(vehicle).length > 0) {
+            setEditingVehicle(vehicle);
             form.setFieldsValue({
                 make: vehicle.make,
                 model: vehicle.model,
@@ -329,7 +334,7 @@ function DriverAddVehicleModal() {
                 .forEach((file) => {
                     formData.append("vehicleImages", file?.originFileObj);
                 });
-
+                setLoading2(true)
             const url = editingVehicle
                 ? `${import.meta.env.VITE_API_URL}/updatevehicle/${
                       editingVehicle?._id
@@ -347,6 +352,7 @@ function DriverAddVehicleModal() {
                         editingVehicle ? "updated" : "added"
                     } successfully!`
                 );
+                setLoading2(false)
                 setIsModalVisible(false);
                 setEditingVehicle(undefined); // Change this line
                 form.resetFields();
@@ -856,9 +862,19 @@ function DriverAddVehicleModal() {
                                         </div>
                                     </div>
                                 </Upload>
+                              
                             </Form.Item>
+                           
                         </Col>
+                      
                     </Row>
+{
+    loading2 &&( <div className="pl-[90%]">
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 36 }} spin />} />
+        </div>)
+}
+                   
+                   
                 </Form>
             </Modal>
 

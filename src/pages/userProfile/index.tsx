@@ -88,8 +88,8 @@ export default function UserProfile() {
     { title: 'Driver Name', dataIndex: 'driverName', key: 'driverName' },
     { title: 'Vehicle Name', dataIndex: 'vehicleName', key: 'vehicleName' },
   ];
-
-  const getBase64 = (file: File, callback: (url: string) => void) => {
+  type FileType = File;
+  const getBase64 = (file: FileType, callback: (url: string) => void) => {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result as string));
     reader.readAsDataURL(file);
@@ -107,27 +107,39 @@ export default function UserProfile() {
     return isJpgOrPng && isLt2M;
   };
 
-  const handleChange = (info:any) => {
-    if (info.file.status === 'done') {
-      getBase64(info.file.originFileObj as File, (url) => {
-        setLoading(false);
-        setImageUrl(url);
-        const value = {
-          imageUrl: url,
-          mail: user?.email,
-        };
-        try {
-          fetch(`${import.meta.env.VITE_API_URL}/updateUser`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(value),
-          });
-        } catch (error) {
-          console.error('Error submitting form: ', error);
-        }
-      });
+  const handleChange = (info: any) => {
+    console.log('File info:', info);
+    
+    // Check if the file object exists and has a status
+    if (info.file && info.file.status) {
+      console.log('File status:', info.file.status);
+      
+    
+        getBase64(info.file.originFileObj as File, (url) => {
+          setLoading(false);
+          setImageUrl(url);
+  
+          const value = {
+            imageUrl: url, // Use the new URL directly
+            mail: user?.email,
+          };
+  
+          try {
+            fetch(`${import.meta.env.VITE_API_URL}/updateUser`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(value),
+            });
+          } catch (error) {
+            console.error('Error submitting form:', error);
+          }
+        });
+   
+    } else {
+      console.error("File info or status is missing:", info);
     }
   };
+  
 
   const uploadButton = (
     <button style={{ border: 0, background: 'none' }} type="button">
@@ -153,16 +165,18 @@ export default function UserProfile() {
           <div className="max-w-7xl mx-auto">
             <Card className="mb-8 overflow-hidden">
               <div className="flex flex-col sm:flex-row items-center gap-6">
-                <Upload
-                  name="avatar"
-                  listType="picture-card"
-                  className="avatar-uploader"
-                  showUploadList={false}
-                  beforeUpload={beforeUpload}
-                  onChange={handleChange}
-                >
-                  {imageUrl ? <Image src={imageUrl} alt="Profile Picture" width={200} height={100} /> : uploadButton}
-                </Upload>
+              <Upload
+  name="avatar"
+  listType="picture-card"
+  className="avatar-uploader"
+  showUploadList={false}
+  beforeUpload={beforeUpload}
+  onChange={handleChange}
+  action={undefined}  // Prevent automatic upload
+>
+  {imageUrl ? <Image src={imageUrl} alt="Profile Picture" width={200} height={100} /> : uploadButton}
+</Upload>
+
                 <div className="text-center sm:text-left -mt-8 sm:mt-0">
                   <Title level={2} className="!mb-0">{user.name}</Title>
                   <Text className="text-gray-500">{userDetails?.email || 'Professional Driver'}</Text>
